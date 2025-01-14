@@ -11,7 +11,7 @@ export function PageHeader() {
   const getBreadcrumbConfig = () => {
     const path = location.pathname
 
-    if (path === "/discover") {
+    if (path === "/") {
       return {
         current: "Discover"
       }

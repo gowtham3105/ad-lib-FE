@@ -14,8 +14,8 @@ export default function App() {
         <AppSidebar />
         <SidebarInset>
           <Routes>
-            <Route path="/" element={<Navigate to="/discover" replace />} />
-            <Route path="/discover" element={<DiscoverPage />} />
+            <Route path="/discover" element={<Navigate to="/" replace />} />
+            <Route path="/" element={<DiscoverPage />} />
             <Route path="/track-brands" element={<TrackBrandsPage />} />
             <Route path="/saved-folders/:folderId" element={<SavedFolderPage />} />
             <Route path="/help" element={<HelpPage />} />
