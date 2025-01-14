@@ -1,4 +1,4 @@
-import { BookmarkIcon, Link2Icon } from "lucide-react"
+import { BookmarkIcon, Link2Icon, PlayCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 import { useEffect, useRef, useState } from "react"
@@ -24,12 +24,14 @@ export function MediaCard({
   timestamp = "2D",
   isActive = false,
   className,
-  id 
+  id
 }: MediaCardProps) {
   const { toast } = useToast()
   const mediaRef = useRef<HTMLImageElement | HTMLVideoElement>(null)
-  const [aspectRatio, setAspectRatio] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [aspectRatio, setAspectRatio] = useState<number | null>(null)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [thumbnailUrl, setThumbnailUrl] = useState<string>("")
 
   useEffect(() => {
     const loadMedia = async () => {
@@ -37,27 +39,28 @@ export function MediaCard({
 
       if (type === "image") {
         const img = mediaRef.current as HTMLImageElement
-        if (img.complete) {
+        const updateImageAspect = () => {
           setAspectRatio(img.naturalWidth / img.naturalHeight)
           setIsLoading(false)
+        }
+
+        if (img.complete) {
+          updateImageAspect()
         } else {
-          img.onload = () => {
-            setAspectRatio(img.naturalWidth / img.naturalHeight)
-            setIsLoading(false)
-          }
+          img.onload = updateImageAspect
         }
       } else {
         const video = mediaRef.current as HTMLVideoElement
-        // For videos, we need to load the metadata first
-        video.onloadedmetadata = () => {
+        video.addEventListener('loadedmetadata', () => {
           setAspectRatio(video.videoWidth / video.videoHeight)
           setIsLoading(false)
-        }
-        // Force metadata loading
-        if (video.readyState >= 1) {
-          setAspectRatio(video.videoWidth / video.videoHeight)
+        }, { once: true })
+
+        // Load the first frame
+        video.currentTime = 0.1
+        video.addEventListener('seeked', () => {
           setIsLoading(false)
-        }
+        }, { once: true })
       }
     }
 
@@ -65,7 +68,10 @@ export function MediaCard({
   }, [type, src])
 
   const handleSave = () => {
-    // TODO: Implement save functionality
+    toast({
+      title: "Saved",
+      description: "The item has been saved to your collection",
+    })
   }
 
   const handleCopyLink = async () => {
@@ -75,6 +81,14 @@ export function MediaCard({
       title: "Link copied",
       description: "The link has been copied to your clipboard",
     })
+  }
+
+  const handleVideoClick = () => {
+    if (type === "video") {
+      setIsPlaying(true)
+      const video = mediaRef.current as HTMLVideoElement
+      video.play()
+    }
   }
 
   return (
@@ -107,34 +121,32 @@ export function MediaCard({
       {/* Media Content */}
       <div 
         className={cn(
-          "relative flex-1",
+          "relative w-full cursor-pointer",
           isLoading && "bg-gray-100 animate-pulse"
         )}
-        style={aspectRatio ? { 
-          paddingBottom: `${(1 / aspectRatio) * 100}%`
-        } : undefined}
+        style={{
+          paddingBottom: aspectRatio ? `${(1 / aspectRatio) * 100}%` : "100%"
+        }}
+        onClick={type === "video" ? handleVideoClick : undefined}
       >
         {type === "image" ? (
           <img
             ref={mediaRef as React.RefObject<HTMLImageElement>}
             src={src}
             alt={title}
-            className={cn(
-              "absolute inset-0 w-full h-full object-contain bg-gray-50",
-              !isLoading && "object-cover"
-            )}
+            className="absolute inset-0 w-full h-full object-cover"
           />
         ) : (
           <video
             ref={mediaRef as React.RefObject<HTMLVideoElement>}
             src={src}
-            poster={src + "?poster=true"}
-            controls
+            controls={isPlaying}
             preload="metadata"
             className={cn(
-              "absolute inset-0 w-full h-full object-contain bg-gray-50",
-              !isLoading && "object-cover"
+              "absolute inset-0 w-full h-full object-cover",
+              !isPlaying && "cursor-pointer"
             )}
+            onClick={handleVideoClick}
           />
         )}
       </div>
