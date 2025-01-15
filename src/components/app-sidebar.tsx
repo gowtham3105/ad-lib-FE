@@ -6,11 +6,12 @@ import {
   Command,
   Frame,
   GalleryVerticalEnd,
-  HelpCircle, // Changed from Help to HelpCircle
+  HelpCircle,
   Map,
   PieChart,
   Settings2,
   SquareTerminal,
+  Plus,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -51,7 +52,19 @@ const data = {
       title: "Track Brands",
       url: "/track-brands",
       icon: Bot,
-      isCollapsible: false,
+      isCollapsible: true,
+      items: [
+        {
+          title: "Add Brand",
+          url: "/track-brands/add",
+          icon: Plus,
+          className: "bg-zinc-800 text-white hover:bg-zinc-700 hover:text-white flex items-center gap-2"
+        },
+        {
+          title: "Nike",
+          url: "/track-brands/1"
+        }
+      ],
     },
     {
       title: "Saved Folders",
@@ -71,12 +84,11 @@ const data = {
     {
       title: "Help",
       url: "/help",
-      icon: HelpCircle, // Updated here as well
+      icon: HelpCircle,
       isActive: false,
       isCollapsible: false
     }
   ]
-
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

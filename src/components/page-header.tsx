@@ -5,7 +5,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 
 export function PageHeader() {
   const location = useLocation()
-  const { folderId } = useParams()
+  const { folderId, brandId } = useParams()
 
   // Function to get breadcrumb configuration based on current route
   const getBreadcrumbConfig = () => {
@@ -17,7 +17,21 @@ export function PageHeader() {
       }
     }
 
-    if (path === "/track-brands") {
+    if (path.startsWith("/track-brands")) {
+      if (path === "/track-brands/add") {
+        return {
+          parent: "Track Brands",
+          parentLink: "/track-brands",
+          current: "Add Brand"
+        }
+      }
+      if (brandId) {
+        return {
+          parent: "Track Brands",
+          parentLink: "/track-brands",
+          current: brandId === "1" ? "Nike" : brandId
+        }
+      }
       return {
         current: "Track Brands"
       }

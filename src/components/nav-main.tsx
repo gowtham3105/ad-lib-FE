@@ -19,26 +19,35 @@ import {
 } from "@/components/ui/sidebar"
 import { ChevronRightIcon } from "@radix-ui/react-icons"
 
-export function NavMain({
-  items,
-}: {
-  items: {
+interface NavItem {
+  title: string
+  url: string
+  icon?: LucideIcon
+  className?: string
+  isActive?: boolean
+  isCollapsible?: boolean
+  items?: {
     title: string
     url: string
     icon?: LucideIcon
-    isActive?: boolean
-    isCollapsible?: boolean
-    items?: {
-      title: string
-      url: string
-    }[]
+    className?: string
   }[]
+}
+
+export function NavMain({
+  items,
+}: {
+  items: NavItem[]
 }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { isMobile, setOpen } = useSidebar()
 
   const handleNavigation = (url: string) => {
+    if (url.startsWith('#')) {
+      // Handle modal open here
+      return
+    }
     // First navigate to the new URL
     navigate(url)
     // Then close the sidebar if we're on mobile
@@ -89,9 +98,14 @@ export function NavMain({
                         className={index === 0 ? "mt-1" : ""}
                       >
                         <SidebarMenuSubButton 
-                          className={`text-base p-4 ${location.pathname === subItem.url ? 'bg-sidebar-accent text-sidebar-accent-foreground' : ''}`}
+                          className={`text-base p-4 ${subItem.className || ''} ${location.pathname === subItem.url ? 'bg-sidebar-accent text-sidebar-accent-foreground' : ''}`}
                           onClick={() => handleNavigation(subItem.url)}
                         >
+                          {subItem.icon && (
+                            <subItem.icon 
+                              className={`!text-inherit !bg-inherit ${subItem.className}`} 
+                            />
+                          )}
                           <span>{subItem.title}</span>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
