@@ -89,23 +89,25 @@ export function AnalyticsSection() {
           <CardContent className="p-6">
             <div className="grid gap-8 auto-rows-min grid-cols-1 xl:grid-cols-2">
               {/* Media Mix Distribution */}
-              <div className="min-w-[280px] w-full">
-                <div className="mb-4">
+              <div className="flex flex-col items-center xl:items-start">
+                <div className="w-full mb-4">
                   <h3 className="text-base font-semibold">Media Mix Distribution</h3>
                   <CardDescription>Breakdown by ad format</CardDescription>
                 </div>
-                <div className="flex justify-center xl:justify-start">
+                <div className="flex justify-center w-full">
                   <MediaMixPieChart data={mediaMixData} />
                 </div>
               </div>
 
               {/* Weekly Ads Trend */}
-              <div className="min-w-[280px] w-full">
-                <div className="mb-4">
+              <div className="flex flex-col items-center xl:items-start">
+                <div className="w-full mb-4">
                   <h3 className="text-base font-semibold">Weekly Ads Trend</h3>
                   <CardDescription>Number of ads started each week</CardDescription>
                 </div>
-                <WeeklyAdsTrendChart data={weeklyAdsData} />
+                <div className="flex justify-center w-full">
+                  <WeeklyAdsTrendChart data={weeklyAdsData} />
+                </div>
               </div>
             </div>
           </CardContent>
