@@ -4,7 +4,6 @@ import { useState, useCallback, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { Search, Globe, Facebook } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
 
 // Sample suggestions data
 const SAMPLE_SUGGESTIONS = [
@@ -78,12 +77,9 @@ export function AddBrandPage() {
   }
 
   const handleSuggestionClick = (suggestion: Suggestion) => {
-    // Here you would typically handle the brand selection
-    // For now, let's navigate to the brand's page
     navigate(`/track-brands/${suggestion.id}`)
   }
 
-  // Focus the search input on mount
   useEffect(() => {
     if (searchInputRef.current) {
       searchInputRef.current.focus()
@@ -95,13 +91,13 @@ export function AddBrandPage() {
       <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
         <PageHeader />
       </header>
-      <div className="w-full pt-8">
+      <div className="w-full pt-4 md:pt-8">
         {/* Search Section */}
         <div className="relative">
-          <p className="text-center text-gray-600 mb-4">
+          <p className="text-center text-gray-600 mb-4 px-4">
             Search for a brand by name, website, or Facebook page URL
           </p>
-          <div className="relative max-w-xl mx-auto flex gap-2">
+          <div className="relative w-[90%] sm:w-[80%] md:max-w-xl mx-auto flex flex-col sm:flex-row gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               <Input
@@ -110,13 +106,13 @@ export function AddBrandPage() {
                 placeholder="Start typing to search..."
                 value={searchQuery}
                 onChange={handleSearch}
-                className="pl-10 pr-4 h-12 text-lg"
+                className="pl-10 pr-4 h-12 text-base sm:text-lg"
                 onKeyDown={(e) => e.key === 'Enter' && handleSearchClick()}
               />
             </div>
             <button
               onClick={handleSearchClick}
-              className="px-6 h-12 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors duration-200 flex items-center justify-center gap-2 font-medium"
+              className="h-12 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors duration-200 flex items-center justify-center gap-2 font-medium px-4 sm:px-6"
             >
               <Search className="h-5 w-5" />
               <span>Search</span>
@@ -125,7 +121,7 @@ export function AddBrandPage() {
           
           {/* Suggestions dropdown */}
           {(suggestions.length > 0 || isSearching) && (
-            <div className="absolute left-1/2 -translate-x-1/2 z-10 mt-2 w-full max-w-xl rounded-lg border border-gray-200 bg-white shadow-lg">
+            <div className="absolute left-1/2 -translate-x-1/2 z-10 mt-2 w-[90%] sm:w-[80%] md:max-w-xl rounded-lg border border-gray-200 bg-white shadow-lg">
               {isSearching ? (
                 <div className="p-4 text-center text-sm text-gray-500">
                   Searching...
@@ -160,13 +156,13 @@ export function AddBrandPage() {
           )}
 
           {/* Search Guide */}
-          <div className="mt-12">
-            <div className="bg-white rounded-xl p-8 border border-gray-100 max-w-[70%] mx-auto">
+          <div className="mt-8 md:mt-12">
+            <div className="bg-white rounded-xl p-6 md:p-8 border border-gray-100 w-[90%] sm:w-[80%] md:max-w-3xl mx-auto">
               <h3 className="text-lg font-semibold mb-6 text-center">How to Find a Brand</h3>
               
-              <div className="flex justify-center items-stretch gap-8">
+              <div className="flex flex-col md:flex-row justify-center items-stretch gap-8">
                 {/* Left Side */}
-                <div className="w-[40%] flex flex-col items-center text-center">
+                <div className="flex-1 flex flex-col items-center text-center">
                   <div className="mb-4">
                     <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mb-4">
                       <Search className="w-8 h-8 text-black-500" />
@@ -183,9 +179,10 @@ export function AddBrandPage() {
 
                 {/* Separator */}
                 <div className="hidden md:block w-[1px] bg-gray-200 self-stretch" />
+                <div className="block md:hidden h-[1px] w-1/2 bg-gray-200 mx-auto" />
 
                 {/* Right Side */}
-                <div className="w-[40%] flex flex-col items-center text-center">
+                <div className="flex-1 flex flex-col items-center text-center">
                   <div className="mb-4">
                     <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mb-4">
                       <Globe className="w-8 h-8 text-black-500" />
