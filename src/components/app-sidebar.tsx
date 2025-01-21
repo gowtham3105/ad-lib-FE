@@ -1,18 +1,8 @@
 import * as React from "react"
-import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  HelpCircle,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
-  Plus,
-} from "lucide-react"
+import { BookOpen, Bot, HelpCircle, SquareTerminal, Plus } from "lucide-react"
+import { useAuth } from "@clerk/clerk-react"
+import { useState, useEffect } from "react"
+import type { SidebarResponse } from "@/lib/types"
 
 import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
@@ -26,16 +16,57 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 
-// This is sample data.
-const data = {
-  teams: [
-    {
-      name: "Spyder",
-      logo: GalleryVerticalEnd,
-      plan: "",
+const teams = [
+  {
+    name: "Juni",
+    logo: "https://i.ibb.co/vHYfgTy/Juni-Logo-200x200.jpg",
+    plan: "",
+  }
+]
+
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { getToken } = useAuth()
+  const [sidebarData, setSidebarData] = useState<SidebarResponse | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchSidebarData = async () => {
+      try {
+        setLoading(true)
+        const token = await getToken()
+        
+        const response = await fetch(`http://127.0.0.1:8000/sidebar/view`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch sidebar data')
+        }
+
+        const data: SidebarResponse = await response.json()
+        setSidebarData(data)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load sidebar data')
+        console.error('Error fetching sidebar data:', err)
+      } finally {
+        setLoading(false)
+      }
     }
-  ],
-  navMain: [
+
+    fetchSidebarData()
+  }, [])
+
+  const navItems = [
+    {
+      title: "Add Brand",
+      url: "/add-brand",
+      icon: Plus,
+      isCollapsible: false,
+      className: "bg-gradient-to-r from-black to-gray-800 text-white hover:shadow-lg hover:scale-[1.02] transition-all duration-200 shadow-sm"
+    },
     {
       title: "Discover",
       url: "/",
@@ -48,33 +79,19 @@ const data = {
       url: "/track-brands",
       icon: Bot,
       isCollapsible: true,
-      items: [
-        {
-          title: "Add Brand",
-          url: "/track-brands/add",
-          icon: Plus,
-          className: "bg-zinc-800 text-white hover:bg-zinc-700 hover:text-white flex items-center gap-2"
-        },
-        {
-          title: "Nike",
-          url: "/track-brands/1"
-        }
-      ],
+      items: sidebarData?.saved_brands.map(brand => ({
+        title: brand.text,
+        url: brand.url
+      })) || []
     },
     {
       title: "Saved Folders",
       url: "/saved-folders",
       icon: BookOpen,
-      items: [
-        {
-          title: "Nike",
-          url: "/saved-folders/123",
-        },
-        {
-          title: "Vance",
-          url: "/saved-folders/12",
-        }
-      ],
+      items: sidebarData?.saved_folders.map(folder => ({
+        title: folder.text,
+        url: folder.url
+      })) || []
     },
     {
       title: "Help",
@@ -84,16 +101,13 @@ const data = {
       isCollapsible: false
     }
   ]
-}
-
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <TeamSwitcher teams={teams} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navItems} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

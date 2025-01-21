@@ -143,6 +143,18 @@ button:focus-visible {
   }
 }
 
+/* Masonry grid styles */
+.masonry-grid {
+  display: flex;
+  width: auto;
+  margin-left: -16px; /* Adjust the negative margin to match your gap */
+}
+
+.masonry-grid_column {
+  padding-left: 16px; /* Adjust this value to match your gap */
+  background-clip: padding-box;
+}
+
 @layer base {
   * {
     @apply border-border;

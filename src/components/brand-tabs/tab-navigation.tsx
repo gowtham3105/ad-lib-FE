@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { motion } from "framer-motion"
 
 export type TabType = "library" | "landing-pages" | "hooks"
 
@@ -15,7 +16,7 @@ const tabs = [
 
 export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
   return (
-    <nav className="flex gap-8 px-6" aria-label="Tabs">
+    <nav className="flex gap-8 px-6 relative" aria-label="Tabs">
       {tabs.map((tab) => (
         <button
           key={tab.id}
@@ -29,7 +30,11 @@ export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
         >
           {tab.label}
           {activeTab === tab.id && (
-            <span className="absolute inset-x-0 -bottom-px h-0.5 bg-black" />
+            <motion.span 
+              className="absolute inset-x-0 -bottom-px h-0.5 bg-black"
+              layoutId="activeTab"
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            />
           )}
         </button>
       ))}

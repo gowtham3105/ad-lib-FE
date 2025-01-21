@@ -17,7 +17,8 @@ import {
   SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { ChevronRightIcon } from "@radix-ui/react-icons"
+import { ChevronDownIcon } from "@radix-ui/react-icons"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface NavItem {
   title: string
@@ -45,78 +46,108 @@ export function NavMain({
 
   const handleNavigation = (url: string) => {
     if (url.startsWith('#')) {
-      // Handle modal open here
       return
     }
-    // First navigate to the new URL
     navigate(url)
-    // Then close the sidebar if we're on mobile
     if (isMobile) {
       setTimeout(() => {
         setOpen(false)
-      }, 150) // Small delay to ensure smooth transition
+      }, 150)
     }
   }
 
   return (
-    <SidebarGroup>
-      <SidebarMenu>
-        {items.map((item) => (
-          item.isCollapsible === false ? (
-            <SidebarMenuItem key={item.title} className="mb-1">
-              <SidebarMenuButton 
-                className={`text-base p-4 ${location.pathname === item.url ? 'bg-sidebar-accent text-sidebar-accent-foreground' : ''}`}
-                onClick={() => handleNavigation(item.url)}
-              >
-                {item.icon && <item.icon />}
-                <span>{item.title}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ) : (
-            <Collapsible
-              key={item.title}
-              asChild
-              defaultOpen={item.isActive || item.items?.some(subItem => location.pathname.startsWith(subItem.url))}
-              className="group/collapsible"
-            >
-              <SidebarMenuItem className="mb-1">
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuButton 
-                    tooltip={item.title} 
-                    className={`text-base p-4 ${location.pathname === item.url ? 'bg-sidebar-accent text-sidebar-accent-foreground' : ''}`}
-                  >
-                    {item.icon && <item.icon />}
-                    <span>{item.title}</span>
-                    <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                  </SidebarMenuButton>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <SidebarMenuSub>
-                    {item.items?.map((subItem, index) => (
-                      <SidebarMenuSubItem 
-                        key={subItem.title} 
-                        className={index === 0 ? "mt-1" : ""}
-                      >
-                        <SidebarMenuSubButton 
-                          className={`text-base p-4 ${subItem.className || ''} ${location.pathname === subItem.url ? 'bg-sidebar-accent text-sidebar-accent-foreground' : ''}`}
-                          onClick={() => handleNavigation(subItem.url)}
-                        >
-                          {subItem.icon && (
-                            <subItem.icon 
-                              className={`!text-inherit !bg-inherit ${subItem.className}`} 
-                            />
-                          )}
-                          <span>{subItem.title}</span>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                </CollapsibleContent>
+    <SidebarGroup className="flex flex-col h-full">
+      <div className="flex-1">
+        <SidebarMenu>
+          {items.map((item) => (
+            item.isCollapsible === false ? (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton 
+                  className={`w-full flex items-center justify-between px-4 py-2.5 text-[15px] font-medium rounded-2xl transition-all duration-200 ${
+                    location.pathname === item.url 
+                      ? 'bg-gray-100 text-gray-900' 
+                      : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                  } ${item.className || ''}`}
+                  onClick={() => handleNavigation(item.url)}
+                >
+                  <span>{item.title}</span>
+                  {item.icon && <item.icon className="h-[18px] w-[18px] text-gray-500" />}
+                </SidebarMenuButton>
               </SidebarMenuItem>
-            </Collapsible>
-          )
-        ))}
-      </SidebarMenu>
+            ) : (
+              <Collapsible
+                key={item.title}
+                asChild
+                defaultOpen={item.isActive || item.items?.some(subItem => location.pathname.startsWith(subItem.url))}
+                className="group/collapsible"
+              >
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton 
+                      tooltip={item.title} 
+                      className={`w-full flex items-center justify-between px-4 py-2.5 text-[15px] font-medium rounded-2xl transition-all duration-200 ${
+                        location.pathname === item.url 
+                          ? 'bg-gray-100 text-gray-900' 
+                          : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                      }`}
+                    >
+                      <span>{item.title}</span>
+                      <ChevronDownIcon className="h-4 w-4 text-gray-500 transition-transform duration-300 ease-in-out group-data-[state=open]/collapsible:rotate-180" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="overflow-hidden transition-all duration-300 ease-in-out">
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                    >
+                      <SidebarMenuSub>
+                        {item.items?.map((subItem) => (
+                          <SidebarMenuSubItem key={subItem.title}>
+                            <SidebarMenuSubButton 
+                              className={`w-full flex items-center px-4 py-2.5 text-[15px] font-medium rounded-2xl transition-all duration-200 ${
+                                location.pathname === subItem.url 
+                                  ? 'bg-gray-100 text-gray-900' 
+                                  : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                              } ${subItem.className || ''}`}
+                              onClick={() => handleNavigation(subItem.url)}
+                            >
+                              {subItem.icon && (
+                                <subItem.icon 
+                                  className={`mr-2 h-[18px] w-[18px] text-gray-500 ${subItem.className}`} 
+                                />
+                              )}
+                              <span>{subItem.title}</span>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    </motion.div>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+            )
+          ))}
+        </SidebarMenu>
+      </div>
+
+      {/* Trial Status */}
+      <div className="mt-auto px-4 py-4">
+        <div className="rounded-2xl bg-gray-50 p-3">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="h-2 w-2 rounded-full bg-gradient-to-br from-pink-300 to-purple-400 animate-pulse" />
+            <span className="text-[13px] font-medium text-gray-900">6 days left for trial</span>
+          </div>
+          <button 
+            onClick={() => handleNavigation('#upgrade')}
+            className="w-full bg-black text-white rounded-full py-1.5 text-[13px] font-medium hover:bg-gray-800 transition-colors"
+          >
+            Upgrade
+          </button>
+        </div>
+      </div>
     </SidebarGroup>
   )
 }

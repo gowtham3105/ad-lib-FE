@@ -2,6 +2,7 @@ import { BookmarkIcon, Link2Icon, PlayCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 import { useEffect, useRef, useState } from "react"
+import { AdDetailsDialog } from "@/components/ad-details-dialog"
 
 interface MediaCardProps {
   type: "image" | "video"
@@ -31,7 +32,7 @@ export function MediaCard({
   const [isLoading, setIsLoading] = useState(true)
   const [aspectRatio, setAspectRatio] = useState<number | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [thumbnailUrl, setThumbnailUrl] = useState<string>("")
+  const [showDetails, setShowDetails] = useState(false)
 
   useEffect(() => {
     const loadMedia = async () => {
@@ -67,14 +68,16 @@ export function MediaCard({
     loadMedia()
   }, [type, src])
 
-  const handleSave = () => {
+  const handleSave = (e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent card click
     toast({
       title: "Saved",
       description: "The item has been saved to your collection",
     })
   }
 
-  const handleCopyLink = async () => {
+  const handleCopyLink = async (e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent card click
     const url = `${window.location.origin}/ad/${id}`
     await navigator.clipboard.writeText(url)
     toast({
@@ -83,7 +86,8 @@ export function MediaCard({
     })
   }
 
-  const handleVideoClick = () => {
+  const handleVideoClick = (e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent card click
     if (type === "video") {
       setIsPlaying(true)
       const video = mediaRef.current as HTMLVideoElement
@@ -91,85 +95,101 @@ export function MediaCard({
     }
   }
 
-  return (
-    <div className={cn(
-      "bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col",
-      "shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] transition-shadow duration-300",
-      className
-    )}>
-      {/* Card Header */}
-      <div className="flex items-center justify-between p-4">
-        <div className="flex items-center gap-3">
-          <img 
-            src={brandLogo} 
-            alt={brandName}
-            className="w-6 h-6 rounded-full object-cover"
-          />
-          <span className="font-medium text-gray-900">{brandName}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className={cn(
-            "w-2 h-2 rounded-full",
-            isActive 
-              ? "bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.6)]" 
-              : "bg-gray-300"
-          )} />
-          <span className="text-gray-500 text-sm">{timestamp}</span>
-        </div>
-      </div>
+  const handleCardClick = () => {
+    setShowDetails(true)
+  }
 
-      {/* Media Content */}
+  return (
+    <>
       <div 
         className={cn(
-          "relative w-full cursor-pointer",
-          isLoading && "bg-gray-100 animate-pulse"
+          "bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col",
+          "shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] transition-shadow duration-300",
+          "cursor-pointer",
+          className
         )}
-        style={{
-          paddingBottom: aspectRatio ? `${(1 / aspectRatio) * 100}%` : "100%"
-        }}
-        onClick={type === "video" ? handleVideoClick : undefined}
+        onClick={handleCardClick}
       >
-        {type === "image" ? (
-          <img
-            ref={mediaRef as React.RefObject<HTMLImageElement>}
-            src={src}
-            alt={title}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        ) : (
-          <video
-            ref={mediaRef as React.RefObject<HTMLVideoElement>}
-            src={src}
-            controls={isPlaying}
-            preload="metadata"
-            className={cn(
-              "absolute inset-0 w-full h-full object-cover",
-              !isPlaying && "cursor-pointer"
-            )}
-            onClick={handleVideoClick}
-          />
-        )}
-      </div>
+        {/* Card Header */}
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-3">
+            <img 
+              src={brandLogo} 
+              alt={brandName}
+              className="w-6 h-6 rounded-full object-cover"
+            />
+            <span className="font-medium text-gray-900">{brandName}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className={cn(
+              "w-2 h-2 rounded-full",
+              isActive 
+                ? "bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.6)]" 
+                : "bg-gray-300"
+            )} />
+            <span className="text-gray-500 text-sm">{timestamp}</span>
+          </div>
+        </div>
 
-      {/* Card Footer */}
-      <div className="py-2.5 px-4">
-        <div className="flex items-center justify-between">
-          <button 
-            onClick={handleCopyLink}
-            className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition-all shadow-sm hover:shadow font-medium"
-            title="Copy link"
-          >
-            <Link2Icon className="w-4 h-4" />
-          </button>
-          <button 
-            onClick={handleSave}
-            className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-            title="Save"
-          >
-            <BookmarkIcon className="w-4 h-4 text-gray-600" />
-          </button>
+        {/* Media Content */}
+        <div 
+          className={cn(
+            "relative w-full cursor-pointer p-2",
+            isLoading && "bg-gray-100 animate-pulse"
+          )}
+          style={{
+            paddingBottom: aspectRatio ? `${(1 / aspectRatio) * 100 + 4}%` : "104%"
+          }}
+          onClick={type === "video" ? handleVideoClick : undefined}
+        >
+          {type === "image" ? (
+            <img
+              ref={mediaRef as React.RefObject<HTMLImageElement>}
+              src={src}
+              alt={title}
+              className="absolute inset-2 w-[calc(100%-1rem)] h-[calc(100%-1rem)] object-cover rounded-lg"
+            />
+          ) : (
+            <video
+              ref={mediaRef as React.RefObject<HTMLVideoElement>}
+              src={src}
+              controls={isPlaying}
+              preload="metadata"
+              className={cn(
+                "absolute inset-2 w-[calc(100%-1rem)] h-[calc(100%-1rem)] object-cover rounded-lg",
+                !isPlaying && "cursor-pointer"
+              )}
+              onClick={handleVideoClick}
+            />
+          )}
+        </div>
+
+        {/* Card Footer */}
+        <div className="py-2.5 px-4">
+          <div className="flex items-center justify-between">
+            <button 
+              onClick={handleCopyLink}
+              className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition-all shadow-sm hover:shadow font-medium"
+              title="Copy link"
+            >
+              <Link2Icon className="w-4 h-4" />
+            </button>
+            <button 
+              onClick={handleSave}
+              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Save"
+            >
+              <BookmarkIcon className="w-4 h-4 text-gray-600" />
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+
+      <AdDetailsDialog 
+        open={showDetails}
+        onOpenChange={setShowDetails}
+        adId={id}
+      />
+    </>
   )
 }

@@ -1,31 +1,32 @@
-import { MediaCard } from "@/components/media-card"
 import { AnalyticsSection } from "./analytics-section"
-import type { Media } from "@/data/brands"
+import type { Ad } from "@/lib/types"
+import { MediaMasonry } from "@/components/media-masonry"
 
 interface LibraryTabProps {
-  media: Media[]
+  media: Ad[]
+  loading: boolean
+  error: string | null
+  hasMore?: boolean
+  onLastElementInView?: () => void
 }
 
-export function LibraryTab({ media }: LibraryTabProps) {
+export function LibraryTab({ 
+  media, 
+  loading, 
+  error,
+  hasMore,
+  onLastElementInView 
+}: LibraryTabProps) {
   return (
-    <div>
+    <div className="space-y-8">
       <AnalyticsSection />
-      
-      <div className="columns-1 md:columns-2 xl:columns-3 2xl:columns-4 gap-3 space-y-3 [&>*]:break-inside-avoid-column">
-        {media.map((item) => (
-          <MediaCard
-            key={item.id}
-            id={item.id}
-            type={item.type}
-            src={item.src}
-            title={item.title}
-            brandName={item.brandName}
-            brandLogo={item.brandLogo}
-            timestamp={item.timestamp}
-            isActive={item.isActive}
-          />
-        ))}
-      </div>
+      <MediaMasonry
+        media={media}
+        loading={loading}
+        error={error}
+        hasMore={hasMore}
+        onLastElementInView={onLastElementInView}
+      />
     </div>
   )
 }

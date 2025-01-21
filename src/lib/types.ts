@@ -5,6 +5,19 @@ export interface AdResponse {
   sort_order: "asc" | "desc"
 }
 
+export interface BrandDetails {
+  external_id: string
+  name: string
+  logo: string
+  website: {
+    url: string
+    text: string
+  } | null
+  facebook: {
+    url: string
+    text: string
+  } | null,
+  ad_count?: number | null
 export interface Ad {
   external_id: string
   brand_name: string
@@ -14,4 +27,14 @@ export interface Ad {
   media_src: string
   is_active: boolean
   key?: string
+}
+
+export interface SidebarItem {
+  url: string
+  text: string
+}
+
+export interface SidebarResponse {
+  saved_brands: SidebarItem[]
+  saved_folders: SidebarItem[]
 }
