@@ -103,8 +103,9 @@ export function MediaCard({
     <>
       <div 
         className={cn(
-          "bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col",
-          "shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] transition-shadow duration-300",
+          "bg-white rounded-xl overflow-hidden border border-gray-100/50 flex flex-col",
+          "shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all duration-300",
+          "hover:translate-y-[-2px]",
           "cursor-pointer",
           className
         )}
@@ -147,7 +148,7 @@ export function MediaCard({
               ref={mediaRef as React.RefObject<HTMLImageElement>}
               src={src}
               alt={title}
-              className="absolute inset-2 w-[calc(100%-1rem)] h-[calc(100%-1rem)] object-cover rounded-lg"
+              className="absolute inset-2 w-[calc(100%-1rem)] h-[calc(100%-1rem)] object-cover rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
             />
           ) : (
             <video
@@ -156,7 +157,7 @@ export function MediaCard({
               controls={isPlaying}
               preload="metadata"
               className={cn(
-                "absolute inset-2 w-[calc(100%-1rem)] h-[calc(100%-1rem)] object-cover rounded-lg",
+                "absolute inset-2 w-[calc(100%-1rem)] h-[calc(100%-1rem)] object-cover rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.04)]",
                 !isPlaying && "cursor-pointer"
               )}
               onClick={handleVideoClick}

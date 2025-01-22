@@ -38,3 +38,11 @@ export interface SidebarResponse {
   saved_brands: SidebarItem[]
   saved_folders: SidebarItem[]
 }
+
+export interface LandingPage {
+  id: number
+  url: string
+  screenshot_url: string
+  count: number
+  brand_id: string
+}

@@ -8,6 +8,9 @@ export default {
     './src/**/*.{ts,tsx}',
   ],
   theme: {
+    fontFamily: {
+      sans: ["Switzer", "system-ui", "-apple-system", "sans-serif"],
+    },
   	extend: {
   		borderRadius: {
   			lg: 'var(--radius)',

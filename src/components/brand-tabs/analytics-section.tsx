@@ -1,14 +1,13 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChevronDown, TrendingUp, HelpCircle } from "lucide-react"
+import { Card, CardContent, CardDescription } from "@/components/ui/card"
+import { HelpCircle } from "lucide-react"
 import { MediaMixPieChart } from "@/components/charts/media-mix-pie-chart"
 import { WeeklyAdsTrendChart } from "@/components/charts/weekly-ads-trend-chart"
-import { useState } from "react"
-import { cn } from "@/lib/utils"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Separator } from "@/components/ui/separator"
 
 // Sample data for media mix distribution
 const mediaMixData = [
@@ -63,82 +62,54 @@ const weeklyAdsData = [
 ]
 
 export function AnalyticsSection() {
-  const [isExpanded, setIsExpanded] = useState(true)
-
   return (
     <div className="mb-8">
-      <Card className="overflow-hidden transition-shadow hover:shadow-md">
-        <CardHeader className="border-b">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="flex items-center gap-2"
-              >
-                <CardTitle>Analytics Overview</CardTitle>
-                <ChevronDown className={cn(
-                  "h-5 w-5 text-gray-500 transition-transform duration-200",
-                  isExpanded && "rotate-180"
-                )} />
-              </button>
-              <div className="flex items-center gap-2 text-sm font-medium text-green-600">
-                <TrendingUp className="h-4 w-4" />
-                Ad creation up by 8.2% this month
+      <Card className="border border-gray-100/50">
+        <CardContent className="p-6">
+          <div className="grid gap-8 auto-rows-min grid-cols-1 xl:grid-cols-2 xl:divide-x xl:divide-gray-200">
+            {/* Media Mix Distribution */}
+            <div className="flex flex-col items-center xl:items-start xl:pr-8">
+              <div className="w-full mb-4">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base font-semibold">Media Mix Distribution</h3>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <HelpCircle className="h-4 w-4 text-gray-400" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Breakdown of ad formats to identify what works best</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <CardDescription>Breakdown by ad format</CardDescription>
+              </div>
+              <div className="flex justify-center w-full">
+                <MediaMixPieChart data={mediaMixData} />
+              </div>
+            </div>
+
+            {/* Weekly Ads Trend */}
+            <div className="flex flex-col items-center xl:items-start xl:pl-8">
+              <div className="w-full mb-4">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base font-semibold">Weekly Ads Trend</h3>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <HelpCircle className="h-4 w-4 text-gray-400" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Track ad frequency and identify campaign patterns</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <CardDescription>Number of ads started each week</CardDescription>
+              </div>
+              <div className="flex justify-center w-full">
+                <WeeklyAdsTrendChart data={weeklyAdsData} />
               </div>
             </div>
           </div>
-        </CardHeader>
-
-        <div className={cn(
-          "transition-all duration-300 ease-in-out origin-top",
-          isExpanded ? "opacity-100" : "opacity-0 h-0 overflow-hidden"
-        )}>
-          <CardContent className="p-6">
-            <div className="grid gap-8 auto-rows-min grid-cols-1 xl:grid-cols-2">
-              {/* Media Mix Distribution */}
-              <div className="flex flex-col items-center xl:items-start">
-                <div className="w-full mb-4">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-base font-semibold">Media Mix Distribution</h3>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <HelpCircle className="h-4 w-4 text-gray-400" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Breakdown of ad formats to identify what works best</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                  <CardDescription>Breakdown by ad format</CardDescription>
-                </div>
-                <div className="flex justify-center w-full">
-                  <MediaMixPieChart data={mediaMixData} />
-                </div>
-              </div>
-
-              {/* Weekly Ads Trend */}
-              <div className="flex flex-col items-center xl:items-start">
-                <div className="w-full mb-4">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-base font-semibold">Weekly Ads Trend</h3>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <HelpCircle className="h-4 w-4 text-gray-400" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Track ad frequency and identify campaign patterns</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                  <CardDescription>Number of ads started each week</CardDescription>
-                </div>
-                <div className="flex justify-center w-full">
-                  <WeeklyAdsTrendChart data={weeklyAdsData} />
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </div>
+        </CardContent>
       </Card>
     </div>
   )

@@ -1,7 +1,6 @@
 import { useParams } from "react-router-dom"
 import { PageHeader } from "@/components/page-header"
 import { useState, useEffect, useRef } from "react"
-import { BrandHeader } from "@/components/brand-tabs/brand-header"
 import { TabNavigation, type TabType } from "@/components/brand-tabs/tab-navigation"
 import { LibraryTab } from "@/components/brand-tabs/library-tab"
 import { LandingPagesTab } from "@/components/brand-tabs/landing-pages-tab"
@@ -20,18 +19,22 @@ export function TrackBrandsPage() {
   const [error, setError] = useState<string | null>(null)
   const [hasMore, setHasMore] = useState(true)
   const initialFetchComplete = useRef(false)
+  const prevBrandIdRef = useRef<string | undefined>(brandId)
 
-  // Handle initial fetch
   useEffect(() => {
+    // Reset state and fetch new data when brand changes
+    if (brandId !== prevBrandIdRef.current) {
+      setMedia([])
+      setPage(1)
+      setHasMore(true)
+      setError(null)
+      initialFetchComplete.current = false
+      prevBrandIdRef.current = brandId
+    }
+
+    // Fetch initial data
     if (brandId && !initialFetchComplete.current) {
       initialFetchComplete.current = true
-      fetchBrandMedia(1)
-    }
-  }, [brandId])
-
-  // Handle subsequent page fetches
-  useEffect(() => {
-    if (page > 1 && brandId) {
       fetchBrandMedia(page)
     }
   }, [page, brandId])
@@ -103,31 +106,29 @@ export function TrackBrandsPage() {
         return <LandingPagesTab />
       case "hooks":
         return <HooksTab />
+      default:
+        return null
     }
   }
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <header className="flex h-16 shrink-0 items-center gap-2 px-4">
+      <header className="flex h-14 shrink-0 items-center gap-3 px-4 bg-white border-b border-gray-100">
         <PageHeader />
       </header>
       
-      <div className="flex-1 flex flex-col gap-6 p-4 pb-8">
+      <div className="flex-1 flex flex-col">
         {brandId ? (
-          <div className="space-y-6">
-            <BrandHeader brandId={brandId} />
+          <div>
+            <div className="bg-white border-b border-gray-100">
+              <TabNavigation 
+                activeTab={activeTab} 
+                onTabChange={setActiveTab} 
+              />
+            </div>
 
-            <div className="bg-white border border-gray-100 rounded-xl">
-              <div className="border-b border-gray-100">
-                <TabNavigation 
-                  activeTab={activeTab} 
-                  onTabChange={setActiveTab} 
-                />
-              </div>
-              
-              <div className="p-6">
-                {renderTabContent()}
-              </div>
+            <div className="p-6">
+              {renderTabContent()}
             </div>
 
             {!loading && !error && media.length > 0 && !hasMore && (
@@ -142,7 +143,7 @@ export function TrackBrandsPage() {
             )}
           </div>
         ) : (
-          <div className="rounded-lg border p-4 bg-white">
+          <div className="rounded-lg border p-4 bg-white m-4">
             <h2 className="text-2xl font-semibold mb-4">Track Brands</h2>
             <p className="text-gray-500">Select a brand from the sidebar to view details</p>
           </div>

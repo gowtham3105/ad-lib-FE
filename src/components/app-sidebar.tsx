@@ -19,7 +19,7 @@ import {
 const teams = [
   {
     name: "Juni",
-    logo: "https://i.ibb.co/vHYfgTy/Juni-Logo-200x200.jpg",
+    logo: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=64&auto=format&fit=crop",
     plan: "",
   }
 ]

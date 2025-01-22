@@ -52,7 +52,7 @@ export function HooksTab() {
   }
 
   return (
-    <div className="rounded-xl border bg-white shadow-sm">
+    <div className="rounded-xl border border-gray-100/50 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
       <div className="p-4 border-b">
         <h3 className="font-semibold">Ad Hooks</h3>
       </div>
