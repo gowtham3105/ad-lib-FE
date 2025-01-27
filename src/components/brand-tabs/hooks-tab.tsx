@@ -1,33 +1,68 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useParams } from "react-router-dom"
 import { Copy, Star } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@clerk/clerk-react"
+import { Loader2 } from "lucide-react"
 
-// Temporary mock data - will be replaced with API data
-const mockHooks = [
-  {
-    id: "1",
-    name: "Just Do It",
-    useCount: 24,
-    isFavorite: true
-  },
-  {
-    id: "2",
-    name: "Play With Fire",
-    useCount: 18,
-    isFavorite: false
-  },
-  {
-    id: "3",
-    name: "Step Into Greatness",
-    useCount: 15,
-    isFavorite: false
-  }
-]
+interface ApiHook {
+  id: number
+  text: string
+  count: number
+}
 
 export function HooksTab() {
   const { toast } = useToast()
-  const [hooks, setHooks] = useState(mockHooks)
+  const { brandId } = useParams()
+  const { getToken } = useAuth()
+  const [hooks, setHooks] = useState<{ id: string; name: string; useCount: number; isFavorite: boolean }[]>([])
+  const [selectedHook, setSelectedHook] = useState<{ id: string; name: string } | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchHooks = async () => {
+      if (!brandId) return
+      
+      try {
+        setLoading(true)
+        setError(null)
+        const token = await getToken()
+        
+        const response = await fetch(`http://localhost:8000/transcript/brand/${brandId}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch hooks')
+        }
+
+        const data: ApiHook[] = await response.json()
+        setHooks(data.map(hook => ({
+          id: hook.id.toString(),
+          name: hook.text,
+          useCount: hook.count,
+          isFavorite: false
+        })))
+        if (data.length > 0) {
+          setSelectedHook({
+            id: data[0].id.toString(),
+            name: data[0].text
+          })
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load hooks')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchHooks()
+  }, [brandId, getToken])
 
   // Sort hooks by useCount in descending order
   const sortedHooks = [...hooks].sort((a, b) => b.useCount - a.useCount)
@@ -48,6 +83,22 @@ export function HooksTab() {
           ? { ...hook, isFavorite: !hook.isFavorite }
           : hook
       )
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-300px)]">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-300px)] text-red-500">
+        {error}
+      </div>
     )
   }
 
@@ -87,7 +138,7 @@ export function HooksTab() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleCopyHook(hook.name)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 hover:text-gray-900 transition-colors"
                     title="Copy hook"
                   >
                     <Copy className="h-4 w-4 text-gray-500" />
@@ -95,7 +146,7 @@ export function HooksTab() {
                   <button
                     onClick={() => toggleFavorite(hook.id)}
                     className={cn(
-                      "p-2 hover:bg-gray-100 rounded-lg transition-colors",
+                      "p-2 hover:text-gray-900 transition-colors",
                       hook.isFavorite && "text-yellow-500"
                     )}
                     title={hook.isFavorite ? "Remove from favorites" : "Add to favorites"}

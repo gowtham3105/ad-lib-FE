@@ -1,0 +1,1 @@
+// This component can be deleted as we no longer need it

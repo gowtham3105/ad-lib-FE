@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom"
 import { PageHeader } from "@/components/page-header"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { TabNavigation, type TabType } from "@/components/brand-tabs/tab-navigation"
 import { LibraryTab } from "@/components/brand-tabs/library-tab"
 import { LandingPagesTab } from "@/components/brand-tabs/landing-pages-tab"
@@ -12,34 +12,15 @@ import { useAuth } from "@clerk/clerk-react"
 export function TrackBrandsPage() {
   const { getToken } = useAuth()
   const { brandId } = useParams()
-  const [activeTab, setActiveTab] = useState<TabType>("library")
-  const [media, setMedia] = useState<Ad[]>([])
-  const [page, setPage] = useState(1)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [hasMore, setHasMore] = useState(true)
-  const initialFetchComplete = useRef(false)
-  const prevBrandIdRef = useRef<string | undefined>(brandId)
+  const [activeTab, setActiveTab] = useState<TabType>("library");
+  const [media, setMedia] = useState<Ad[]>([]);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const initialFetchComplete = useRef(false);
 
-  useEffect(() => {
-    // Reset state and fetch new data when brand changes
-    if (brandId !== prevBrandIdRef.current) {
-      setMedia([])
-      setPage(1)
-      setHasMore(true)
-      setError(null)
-      initialFetchComplete.current = false
-      prevBrandIdRef.current = brandId
-    }
-
-    // Fetch initial data
-    if (brandId && !initialFetchComplete.current) {
-      initialFetchComplete.current = true
-      fetchBrandMedia(page)
-    }
-  }, [page, brandId])
-
-  const fetchBrandMedia = async (pageNumber: number) => {
+  const fetchBrandMedia = useCallback(async (pageNumber: number) => {
     if (!brandId) return
     if (loading) return
 
@@ -48,7 +29,7 @@ export function TrackBrandsPage() {
       setError(null)
       const token = await getToken()
       
-      const response = await fetch(`http://127.0.0.1:8000/ad`, {
+      const response = await fetch(`http://127.0.0.1:8000/ad/search`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -56,7 +37,8 @@ export function TrackBrandsPage() {
         },
         body: JSON.stringify({ 
           page: pageNumber,
-          brand_id: brandId
+          brand_id: brandId,
+          limit: 40
         }),
       })
 
@@ -84,7 +66,34 @@ export function TrackBrandsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [brandId, getToken, loading])
+
+  // Handle initial fetch
+  useEffect(() => {
+    if (!initialFetchComplete.current) {
+      initialFetchComplete.current = true;
+      fetchBrandMedia(1);
+    }
+  }, [])
+
+  // Reset state when brand changes
+  useEffect(() => {
+    if (brandId) {
+      setMedia([])
+      setPage(1)
+      setHasMore(true)
+      setError(null)
+      initialFetchComplete.current = false
+      fetchBrandMedia(1);
+    }
+  }, [brandId])
+
+  // Handle subsequent page fetches
+  useEffect(() => {
+    if (page > 1) {
+      fetchBrandMedia(page)
+    }
+  }, [page, brandId])
 
   const handleLastElementInView = () => {
     setPage(prevPage => prevPage + 1)

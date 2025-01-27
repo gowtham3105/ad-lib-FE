@@ -5,6 +5,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import { useEffect, useState, useMemo } from "react"
 import { useAuth } from "@clerk/clerk-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useSidebar } from "@/components/ui/sidebar"
 
 interface BrandDetails {
   name: string
@@ -18,6 +19,7 @@ export function PageHeader() {
   const { folderId, brandId } = useParams()
   const { getToken } = useAuth()
   const [brandDetails, setBrandDetails] = useState<BrandDetails | null>(null)
+  const { isMobile } = useSidebar()
 
   // Memoize the breadcrumb config to prevent unnecessary recalculations
   const config = useMemo(() => {
@@ -50,8 +52,9 @@ export function PageHeader() {
 
     if (path === "/help") return { current: "Help" }
     if (path === "/account") return { current: "Account" }
+    if (path === "/add-brand") return { current: "Add Brand" }
 
-    return { current: "Page Not Found" }
+    return { current: "Discover" }
   }, [location.pathname, brandDetails?.name, folderId])
 
   useEffect(() => {
@@ -73,7 +76,7 @@ export function PageHeader() {
           setBrandDetails({
             name: data.name,
             logo: data.logo,
-            activeCount: 1000, // These would come from the API
+            activeCount: data.ad_count, // These would come from the API
             inactiveCount: 100
           })
         }
@@ -82,6 +85,8 @@ export function PageHeader() {
       }
     }
 
+    // on brandId change, reset brandDetails
+    setBrandDetails(null)
     fetchBrandDetails()
     return () => { isMounted = false }
   }, [brandId, getToken])
@@ -117,8 +122,12 @@ export function PageHeader() {
   return (
     <div className="flex items-center justify-between w-full">
       <div className="flex items-center gap-2">
-        <SidebarTrigger className="-ml-1" />
-        <Separator orientation="vertical" className="mr-2 h-4" />
+        {isMobile && (
+          <>
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+          </>
+        )}
         <Breadcrumb>
           <BreadcrumbList>
             {config.parent && (

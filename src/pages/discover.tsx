@@ -35,13 +35,16 @@ export function DiscoverPage() {
       setLoading(true)
       const token = await getToken()
       
-      const response = await fetch(`http://127.0.0.1:8000/ad`, {
+      const response = await fetch(`http://127.0.0.1:8000/ad/search`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ page: pageNumber }),
+        body: JSON.stringify({ 
+          page: pageNumber,
+          limit: 40 
+        }),
       })
 
       if (!response.ok) {

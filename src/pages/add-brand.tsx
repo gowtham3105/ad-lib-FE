@@ -1,215 +1,166 @@
-import { PageHeader } from "@/components/page-header"
-import { Input } from "@/components/ui/input"
-import { useState, useCallback, useEffect, useRef } from "react"
-import { useNavigate } from "react-router-dom"
-import { Search, Globe, Facebook } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-
-// Sample suggestions data
-const SAMPLE_SUGGESTIONS = [
-  {
-    id: "1",
-    name: "Nike",
-    logo: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=100&auto=format&fit=crop",
-    totalAds: 156
-  },
-  {
-    id: "2",
-    name: "Adidas",
-    logo: "https://images.unsplash.com/photo-1543508282-6319a3e2621f?q=80&w=100&auto=format&fit=crop",
-    totalAds: 89
-  },
-  {
-    id: "3",
-    name: "Puma",
-    logo: "https://images.unsplash.com/photo-1608231387042-66d1773070a5?q=80&w=100&auto=format&fit=crop",
-    totalAds: 42
-  },
-  {
-    id: "4",
-    name: "Under Armour",
-    logo: "https://images.unsplash.com/photo-1556906781-9a412961c28c?q=80&w=100&auto=format&fit=crop",
-    totalAds: 73
-  }
-]
-
-interface Suggestion {
-  id: string
-  name: string
-  logo: string
-  totalAds: number
-}
+import { Search, Plus } from "lucide-react"
+import { useState } from "react"
+import { AddBrandDialog } from "@/components/add-brand/add-brand-dialog"
 
 export function AddBrandPage() {
-  const navigate = useNavigate()
-  const [searchQuery, setSearchQuery] = useState("")
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([])
-  const [isSearching, setIsSearching] = useState(false)
-  const searchInputRef = useRef<HTMLInputElement>(null)
-
-  const getSuggestions = useCallback((query: string) => {
-    setIsSearching(true)
-    
-    setTimeout(() => {
-      const filteredSuggestions = SAMPLE_SUGGESTIONS.filter(suggestion => 
-        suggestion.name.toLowerCase().includes(query.toLowerCase())
-      )
-      setSuggestions(filteredSuggestions)
-      setIsSearching(false)
-    }, 300)
-  }, [])
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value
-    setSearchQuery(query)
-    
-    if (query.length >= 2) {
-      getSuggestions(query)
-    } else {
-      setSuggestions([])
-    }
-  }
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [initialTab, setInitialTab] = useState<"search" | "manual">("search")
 
   const handleSearchClick = () => {
-    if (searchQuery.length >= 2) {
-      getSuggestions(searchQuery)
-    }
+    setDialogOpen(true)
+    setInitialTab("search")
   }
 
-  const handleSuggestionClick = (suggestion: Suggestion) => {
-    navigate(`/track-brands/${suggestion.id}`)
+  const handleAddNewClick = () => {
+    setDialogOpen(true)
+    setInitialTab("manual")
   }
-
-  useEffect(() => {
-    if (searchInputRef.current) {
-      searchInputRef.current.focus()
-    }
-  }, [])
 
   return (
-    <div className="flex flex-col gap-4 p-4">
-      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-        <PageHeader />
-      </header>
-      <div className="w-full pt-4 md:pt-8">
-        {/* Search Section */}
-        <div className="relative">
-          <p className="text-center text-gray-600 mb-4 px-4">
-            Search for a brand by name, website, or Facebook page URL
-          </p>
-          <div className="relative w-[90%] sm:w-[80%] md:max-w-xl mx-auto flex flex-col sm:flex-row gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-              <Input
-                ref={searchInputRef}
-                type="text"
-                placeholder="Start typing to search..."
-                value={searchQuery}
-                onChange={handleSearch}
-                className="pl-10 pr-4 h-12 text-base sm:text-lg"
-                onKeyDown={(e) => e.key === 'Enter' && handleSearchClick()}
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      {/* Center content vertically */}
+      <div className="flex-1 flex items-center py-12">
+        <div className="w-full">
+          <div className="relative max-w-4xl mx-auto px-4">
+            {/* Juni Logo */}
+            <div className="flex justify-center mb-8">
+              <img 
+                src="https://i.ibb.co/DrTd1jz/Untitled-design.png"
+                alt="Juni Logo"
+                className="w-16 h-16 animate-[spin_40s_ease-in-out_infinite_alternate]"
               />
             </div>
-            <button
-              onClick={handleSearchClick}
-              className="h-12 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors duration-200 flex items-center justify-center gap-2 font-medium px-4 sm:px-6"
-            >
-              <Search className="h-5 w-5" />
-              <span>Search</span>
-            </button>
-          </div>
-          
-          {/* Suggestions dropdown */}
-          {(suggestions.length > 0 || isSearching) && (
-            <div className="absolute left-1/2 -translate-x-1/2 z-10 mt-2 w-[90%] sm:w-[80%] md:max-w-xl rounded-lg border border-gray-200 bg-white shadow-lg">
-              {isSearching ? (
-                <div className="p-4 text-center text-sm text-gray-500">
-                  Searching...
-                </div>
-              ) : (
-                <ul className="max-h-[calc(100vh-300px)] overflow-auto py-2">
-                  {suggestions.map((suggestion) => (
-                    <li
-                      key={suggestion.id}
-                      className="cursor-pointer px-4 py-3 hover:bg-gray-50 transition-colors"
-                      onClick={() => handleSuggestionClick(suggestion)}
-                    >
-                      <div className="flex items-center gap-4">
-                        <Avatar className="h-12 w-12">
-                          <AvatarImage src={suggestion.logo} alt={suggestion.name} />
-                          <AvatarFallback>
-                            {suggestion.name.substring(0, 2).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-base">{suggestion.name}</div>
-                          <div className="text-sm text-gray-500">
-                            {suggestion.totalAds.toLocaleString()} ads saved
-                          </div>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
 
-          {/* Search Guide */}
-          <div className="mt-8 md:mt-12">
-            <div className="bg-white rounded-xl p-6 md:p-8 border border-gray-100 w-[90%] sm:w-[80%] md:max-w-3xl mx-auto">
-              <h3 className="text-lg font-semibold mb-6 text-center">How to Find a Brand</h3>
-              
-              <div className="flex flex-col md:flex-row justify-center items-stretch gap-8">
-                {/* Left Side */}
-                <div className="flex-1 flex flex-col items-center text-center">
-                  <div className="mb-4">
-                    <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mb-4">
-                      <Search className="w-8 h-8 text-black-500" />
-                    </div>
-                  </div>
-                  <h4 className="text-base font-medium text-black-600 mb-2">
-                    Search by Brand Name
-                  </h4>
-                  <p className="text-gray-600 text-sm">
-                    Type the brand name to see if it's already being tracked. 
-                    Suggestions will appear if the brand exists in our database.
+            {/* Title and Subtitle */}
+            <div className="text-center mb-14">
+              <h1 className="text-4xl font-semibold mb-3">
+                Automated Competitor Creative Analysis
+              </h1>
+              <p className="text-lg text-gray-600">
+                Juni allows you to track, save and analyze every<br />
+                ad and landing page a brand launches.
+              </p>
+            </div>
+
+            {/* Track Options */}
+            <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+              {/* Search Existing Brand */}
+              <div className="bg-white rounded-xl p-6 border border-gray-100 flex flex-col">
+                {/* Title & Subtitle */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-medium mb-2">Search an Existing Juni Brand</h3>
+                  <p className="text-sm text-gray-600">
+                    Unlock the historical data from brands already being tracked on Juni.
                   </p>
                 </div>
 
-                {/* Separator */}
-                <div className="hidden md:block w-[1px] bg-gray-200 self-stretch" />
-                <div className="block md:hidden h-[1px] w-1/2 bg-gray-200 mx-auto" />
+                {/* Illustration */}
+                <div className="flex-1 mb-6">
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      {
+                        logo: "https://images.unsplash.com/photo-1542291026-7eec264c27ff",
+                        name: "PetLab Co.",
+                        ads: "21,428"
+                      },
+                      {
+                        logo: "https://images.unsplash.com/photo-1543508282-6319a3e2621f",
+                        name: "Hismile",
+                        ads: "20,068"
+                      },
+                      {
+                        logo: "https://images.unsplash.com/photo-1608231387042-66d1773070a5",
+                        name: "Nooro",
+                        ads: "7,302"
+                      },
+                      {
+                        logo: "https://images.unsplash.com/photo-1556906781-9a412961c28c",
+                        name: "Happy Mammoth",
+                        ads: "21,361"
+                      }
+                    ].map((brand) => (
+                      <div key={brand.name} className="flex items-center gap-2">
+                        <img 
+                          src={brand.logo} 
+                          alt={brand.name}
+                          className="w-8 h-8 rounded-lg object-cover"
+                        />
+                        <div className="min-w-0">
+                          <div className="text-sm font-medium truncate">{brand.name}</div>
+                          <div className="text-xs text-gray-500">{brand.ads}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
-                {/* Right Side */}
-                <div className="flex-1 flex flex-col items-center text-center">
-                  <div className="mb-4">
-                    <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mb-4">
-                      <Globe className="w-8 h-8 text-black-500" />
+                {/* Button */}
+                <button 
+                  onClick={handleSearchClick}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-black text-white rounded-lg hover:bg-gray-900 transition-colors text-sm font-medium"
+                >
+                  <Search className="w-4 h-4" />
+                  Search for brand
+                </button>
+              </div>
+
+              {/* Add New Brand */}
+              <div className="bg-white rounded-xl p-6 border border-gray-100 flex flex-col">
+                {/* Title & Subtitle */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-medium mb-2">Manually Add a New Brand</h3>
+                  <p className="text-sm text-gray-600">
+                    Start tracking a brand not yet available in Juni.
+                  </p>
+                </div>
+
+                {/* Illustration */}
+                <div className="flex-1 mb-6">
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg mb-3">
+                    <div className="text-sm text-gray-600">https://</div>
+                    <div className="flex items-center gap-2">
+                      <img 
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/2048px-2021_Facebook_icon.svg.png"
+                        alt="Facebook"
+                        className="w-4 h-4"
+                      />
+                      <span className="text-sm font-medium">Facebook</span>
+                    </div>
+                    <div className="text-sm text-gray-600">/ads/library/</div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full bg-gray-200"></div>
+                      <span className="text-sm text-gray-600">Brand</span>
                     </div>
                   </div>
-                  <h4 className="text-base font-medium text-black-600 mb-2">
-                    Try Website or Facebook URL
-                  </h4>
-                  <div className="space-y-2">
-                    <p className="text-gray-600 text-sm">
-                      If no suggestions appear, try pasting:
-                    </p>
-                    <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-                      <Globe className="h-4 w-4 text-gray-400" />
-                      <span>Brand's website URL</span>
-                    </div>
-                    <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-                      <Facebook className="h-4 w-4 text-gray-400" />
-                      <span>Facebook page URL</span>
+
+                  <div className="p-2.5 bg-gray-50 rounded-lg">
+                    <div className="text-xs text-gray-500">Example URL</div>
+                    <div className="text-sm text-gray-700 font-mono truncate">
+                      facebook.com/ads/library/nike
                     </div>
                   </div>
                 </div>
+
+                {/* Button */}
+                <button 
+                  onClick={handleAddNewClick}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[rgb(233,128,116)] text-white rounded-lg hover:bg-[rgb(225,95,80)] transition-colors text-sm font-medium"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add new brand
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Dialog */}
+      <AddBrandDialog
+        open={dialogOpen}
+        onOpenChange={(open) => setDialogOpen(open)}
+        initialTab={initialTab}
+      />
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useEffect } from "react"
+import { useCallback, useRef, useEffect, useState } from "react"
 import type { Ad } from "@/lib/types"
 import { MediaCard } from "@/components/media-card"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -21,23 +21,40 @@ export function MediaMasonry({
 }: MediaMasonryProps) {
   const observerRef = useRef<IntersectionObserver | null>(null)
   const lastElementRefCallback = useRef<HTMLDivElement | null>(null)
+  const [isIntersecting, setIsIntersecting] = useState(false)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const preloadTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [preloadStarted, setPreloadStarted] = useState(false)
 
   const lastElementRef = useCallback((node: HTMLDivElement) => {
     lastElementRefCallback.current = node
   }, [])
 
   useEffect(() => {
-    if (loading || !onLastElementInView || !lastElementRefCallback.current) return
+    if (!onLastElementInView || !lastElementRefCallback.current) return
 
     if (observerRef.current) {
       observerRef.current.disconnect()
     }
 
     observerRef.current = new IntersectionObserver(entries => {
-        if (entries[0].isIntersecting && hasMore) {
-          onLastElementInView()
+      const isIntersecting = entries[0].isIntersecting
+      setIsIntersecting(isIntersecting)
+      
+      // Start preloading when we're 75% through the current content
+      if (entries[0].intersectionRatio > 0.75 && !preloadStarted && hasMore && !loading) {
+        setPreloadStarted(true)
+        if (preloadTimeoutRef.current) {
+          clearTimeout(preloadTimeoutRef.current)
         }
-      })
+        preloadTimeoutRef.current = setTimeout(() => {
+          onLastElementInView?.()
+        }, 300)
+      }
+    }, {
+      rootMargin: '200px', // Increased margin for earlier detection
+      threshold: [0, 0.25, 0.5, 0.75, 1] // Monitor multiple thresholds
+    })
 
     observerRef.current.observe(lastElementRefCallback.current)
 
@@ -45,8 +62,41 @@ export function MediaMasonry({
       if (observerRef.current) {
         observerRef.current.disconnect()
       }
+      if (preloadTimeoutRef.current) {
+        clearTimeout(preloadTimeoutRef.current)
+      }
     }
-  }, [loading, hasMore, onLastElementInView])
+  }, [onLastElementInView])
+
+  // Handle intersection with debounce
+  useEffect(() => {
+    setPreloadStarted(false)
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+
+    if (isIntersecting && hasMore && !loading) {
+      timeoutRef.current = setTimeout(() => {
+        onLastElementInView()
+      }, 500) // Debounce time of 500ms
+    }
+
+    return () => timeoutRef.current && clearTimeout(timeoutRef.current)
+  }, [isIntersecting, hasMore, loading, onLastElementInView])
+
+  // Preload images for next batch
+  useEffect(() => {
+    if (media.length > 0) {
+      const imagesToPreload = media.slice(-4) // Preload last 4 images
+      imagesToPreload.forEach(ad => {
+        if (ad.media_type === "image") {
+          const img = new Image()
+          img.src = ad.media_src
+        }
+      })
+    }
+  }, [media])
 
   const breakpointColumns = {
     default: 4,

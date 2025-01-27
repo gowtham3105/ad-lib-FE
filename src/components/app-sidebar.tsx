@@ -1,11 +1,9 @@
-import * as React from "react"
+import { useState, useEffect } from "react"
 import { BookOpen, Bot, HelpCircle, SquareTerminal, Plus } from "lucide-react"
 import { useAuth } from "@clerk/clerk-react"
-import { useState, useEffect } from "react"
 import type { SidebarResponse } from "@/lib/types"
 
 import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
 import {
@@ -14,12 +12,14 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar"
+import { Button } from "@/components/ui/3d-button"
 
 const teams = [
   {
     name: "Juni",
-    logo: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=64&auto=format&fit=crop",
+    logo: "https://i.ibb.co/DrTd1jz/Untitled-design.png",
     plan: "",
   }
 ]
@@ -29,6 +29,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [sidebarData, setSidebarData] = useState<SidebarResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { isMobile } = useSidebar()
 
   useEffect(() => {
     const fetchSidebarData = async () => {
@@ -41,7 +42,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             'Authorization': `Bearer ${token}`
           }
         })
-
+    
         if (!response.ok) {
           throw new Error('Failed to fetch sidebar data')
         }
@@ -57,7 +58,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }
 
     fetchSidebarData()
-  }, [])
+  }, [getToken])
 
   const navItems = [
     {
@@ -65,7 +66,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       url: "/add-brand",
       icon: Plus,
       isCollapsible: false,
-      className: "bg-gradient-to-r from-black to-gray-800 text-white hover:shadow-lg hover:scale-[1.02] transition-all duration-200 shadow-sm"
+      component: (
+        <Button
+          variant="outline"
+          size="default"
+          className="w-full bg-gray-100/80 hover:bg-gray-200 shadow-sm hover:scale-[1.02] transition-all duration-200 [&>*]:text-black"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Add Brand</span>
+        </Button>
+      )
     },
     {
       title: "Discover",
@@ -101,18 +111,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       isCollapsible: false
     }
   ]
+
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar 
+      collapsible={isMobile ? "icon" : false} 
+      className="border-r border-sidebar-border bg-sidebar"
+      {...props}
+    >
       <SidebarHeader>
         <TeamSwitcher teams={teams} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navItems} />
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="border-t border-sidebar-border">
         <NavUser />
       </SidebarFooter>
-      <SidebarRail />
+      {isMobile && <SidebarRail />}
     </Sidebar>
   )
 }

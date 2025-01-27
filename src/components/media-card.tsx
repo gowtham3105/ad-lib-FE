@@ -1,7 +1,7 @@
 import { BookmarkIcon, Link2Icon, PlayCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useCallback, memo } from "react"
 import { AdDetailsDialog } from "@/components/ad-details-dialog"
 
 interface MediaCardProps {
@@ -16,7 +16,7 @@ interface MediaCardProps {
   id: string
 }
 
-export function MediaCard({ 
+export const MediaCard = memo(function MediaCard({ 
   type, 
   src, 
   title, 
@@ -33,6 +33,43 @@ export function MediaCard({
   const [aspectRatio, setAspectRatio] = useState<number | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const [blurDataUrl, setBlurDataUrl] = useState<string>('')
+  const [isHovered, setIsHovered] = useState(false)
+  const [isImageLoaded, setIsImageLoaded] = useState(false)
+
+  // Generate blur data URL
+  useEffect(() => {
+    if (type === "image") {
+      const canvas = document.createElement('canvas')
+      canvas.width = 10
+      canvas.height = 10
+      const ctx = canvas.getContext('2d')
+      if (ctx) {
+        ctx.fillStyle = '#e5e7eb' // Tailwind gray-200
+        ctx.fillRect(0, 0, 10, 10)
+        setBlurDataUrl(canvas.toDataURL())
+      }
+    }
+  }, [type])
+
+  const handleMouseEnter = useCallback(() => {
+    if (type === "video" && videoRef.current) {
+      setIsHovered(true)
+      videoRef.current.play().catch(() => {
+        // Handle any autoplay restrictions
+        console.log("Autoplay prevented")
+      })
+    }
+  }, [type])
+
+  const handleMouseLeave = useCallback(() => {
+    if (type === "video" && videoRef.current) {
+      setIsHovered(false)
+      videoRef.current.pause()
+      videoRef.current.currentTime = 0
+    }
+  }, [type])
 
   useEffect(() => {
     const loadMedia = async () => {
@@ -86,18 +123,51 @@ export function MediaCard({
     })
   }
 
-  const handleVideoClick = (e: React.MouseEvent) => {
+  const handleVideoClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation() // Prevent card click
     if (type === "video") {
-      setIsPlaying(true)
-      const video = mediaRef.current as HTMLVideoElement
-      video.play()
+      if (videoRef.current) {
+        if (videoRef.current.paused) {
+          videoRef.current.play().then(() => {
+            setIsPlaying(true)
+          }).catch(error => {
+            console.error('Error playing video:', error)
+            setIsPlaying(false)
+          })
+        } else {
+          videoRef.current.pause()
+          setIsPlaying(false)
+        }
+      }
     }
-  }
+  }, [type])
 
   const handleCardClick = () => {
     setShowDetails(true)
   }
+
+  useEffect(() => {
+    const video = videoRef.current
+    if (video) {
+      const handleEnded = () => {
+        setIsPlaying(false)
+        video.currentTime = 0 // Reset to start when ended
+      }
+      
+      const handlePlay = () => setIsPlaying(true)
+      const handlePause = () => setIsPlaying(false)
+      
+      video.addEventListener('ended', handleEnded)
+      video.addEventListener('play', handlePlay)
+      video.addEventListener('pause', handlePause)
+      
+      return () => {
+        video.removeEventListener('ended', handleEnded)
+        video.removeEventListener('play', handlePlay)
+        video.removeEventListener('pause', handlePause)
+      }
+    }
+  }, [])
 
   return (
     <>
@@ -136,32 +206,64 @@ export function MediaCard({
         <div 
           className={cn(
             "relative w-full cursor-pointer p-2",
-            isLoading && "bg-gray-100 animate-pulse"
+            isLoading && "bg-gray-100 animate-pulse",
+            type === "video" && "group",
           )}
           style={{
             paddingBottom: aspectRatio ? `${(1 / aspectRatio) * 100 + 4}%` : "104%"
           }}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
           onClick={type === "video" ? handleVideoClick : undefined}
         >
           {type === "image" ? (
-            <img
-              ref={mediaRef as React.RefObject<HTMLImageElement>}
-              src={src}
-              alt={title}
-              className="absolute inset-2 w-[calc(100%-1rem)] h-[calc(100%-1rem)] object-cover rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
-            />
-          ) : (
-            <video
-              ref={mediaRef as React.RefObject<HTMLVideoElement>}
-              src={src}
-              controls={isPlaying}
-              preload="metadata"
-              className={cn(
-                "absolute inset-2 w-[calc(100%-1rem)] h-[calc(100%-1rem)] object-cover rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.04)]",
-                !isPlaying && "cursor-pointer"
+            <div className="absolute inset-2 w-[calc(100%-1rem)] h-[calc(100%-1rem)] rounded-lg overflow-hidden">
+              {blurDataUrl && !isImageLoaded && (
+                <div
+                  className="absolute inset-0 bg-cover bg-center blur-xl transform scale-110"
+                  style={{ backgroundImage: `url(${blurDataUrl})` }}
+                />
               )}
-              onClick={handleVideoClick}
-            />
+              <img
+                ref={mediaRef as React.RefObject<HTMLImageElement>}
+                src={src}
+                alt={title}
+                onLoad={() => setIsImageLoaded(true)}
+                className={cn(
+                  "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
+                  !isImageLoaded && "opacity-0",
+                  isImageLoaded && "opacity-100"
+                )}
+              />
+            </div>
+          ) : (
+            <div className="absolute inset-2 w-[calc(100%-1rem)] h-[calc(100%-1rem)]">
+              <video
+                ref={(el) => {
+                  mediaRef.current = el
+                  videoRef.current = el
+                }}
+                src={src}
+                controls={isPlaying}
+                preload="metadata"
+                className={cn(
+                  "w-full h-full object-cover rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.04)]",
+                  !isPlaying && !isHovered && "cursor-pointer"
+                )}
+                onClick={handleVideoClick}
+                muted // Required for autoplay
+              />
+              {!isPlaying && !isHovered && (
+                <div 
+                  className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-lg transition-opacity"
+                  onClick={handleVideoClick}
+                >
+                  <div className="transform hover:scale-110 transition-transform">
+                    <PlayCircle className="w-16 h-16 text-white drop-shadow-lg" />
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </div>
 
@@ -193,4 +295,4 @@ export function MediaCard({
       />
     </>
   )
-}
+})

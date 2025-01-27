@@ -62,13 +62,13 @@ export function NavUser() {
   if (!user) return null
 
   return (
-    <SidebarMenu>
+    <SidebarMenu className="px-2">
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="w-full data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user.imageUrl} alt={user.fullName || ""} />
