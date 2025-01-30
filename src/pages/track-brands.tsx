@@ -6,7 +6,7 @@ import { LibraryTab } from "@/components/brand-tabs/library-tab"
 import { LandingPagesTab } from "@/components/brand-tabs/landing-pages-tab"
 import { HooksTab } from "@/components/brand-tabs/hooks-tab"
 import { motion } from "framer-motion"
-import type { Ad, AdResponse } from "@/lib/types"
+import type { Ad, AdResponse, BrandDetails } from "@/lib/types"
 import { useAuth } from "@clerk/clerk-react"
 
 export function TrackBrandsPage() {
@@ -18,7 +18,36 @@ export function TrackBrandsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
+  const [brandDetails, setBrandDetails] = useState<BrandDetails | null>(null)
   const initialFetchComplete = useRef(false);
+
+  // Fetch brand details
+  useEffect(() => {
+    const fetchBrandDetails = async () => {
+      if (!brandId) return
+      try {
+        const token = await getToken()
+        const response = await fetch(`http://127.0.0.1:8000/brand/view/${brandId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        if (!response.ok) throw new Error('Failed to fetch brand details')
+        const data = await response.json()
+        
+        setBrandDetails({
+          name: data.name,
+          logo: data.logo,
+          activeCount: 1000, // These would come from the API
+          inactiveCount: 100
+        })
+      } catch (error) {
+        console.error('Error fetching brand details:', error)
+      }
+    }
+
+    fetchBrandDetails()
+  }, [brandId, getToken])
 
   const fetchBrandMedia = useCallback(async (pageNumber: number) => {
     if (!brandId) return
@@ -114,7 +143,7 @@ export function TrackBrandsPage() {
       case "landing-pages":
         return <LandingPagesTab />
       case "hooks":
-        return <HooksTab />
+        return <HooksTab brandDetails={brandDetails} />
       default:
         return null
     }
@@ -123,7 +152,7 @@ export function TrackBrandsPage() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <header className="flex h-14 shrink-0 items-center gap-3 px-4 bg-white border-b border-gray-100">
-        <PageHeader />
+        <PageHeader brandDetails={brandDetails} />
       </header>
       
       <div className="flex-1 flex flex-col">

@@ -46,3 +46,13 @@ export interface LandingPage {
   count: number
   brand_id: string
 }
+
+// src/types/index.ts
+export interface BrandSuggestion {
+  id: number
+  name: string
+  adsCount: number
+  trend: number
+  logo: string
+  // Add any additional fields you need
+}
