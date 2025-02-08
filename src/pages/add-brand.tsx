@@ -1,6 +1,6 @@
 import { Search, Plus } from "lucide-react"
 import { useState } from "react"
-import { AddBrandDialog } from "@/components/add-brand/add-brand-dialog"
+import AddBrandModal from "@/components/add-brand/add-brand-dialog/add-brand-dialog"
 
 export function AddBrandPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -24,7 +24,7 @@ export function AddBrandPage() {
           <div className="relative max-w-4xl mx-auto px-4">
             {/* Juni Logo */}
             <div className="flex justify-center mb-8">
-              <img 
+              <img
                 src="https://i.ibb.co/DrTd1jz/Untitled-design.png"
                 alt="Juni Logo"
                 className="w-16 h-16 animate-[spin_40s_ease-in-out_infinite_alternate]"
@@ -80,8 +80,8 @@ export function AddBrandPage() {
                       }
                     ].map((brand) => (
                       <div key={brand.name} className="flex items-center gap-2">
-                        <img 
-                          src={brand.logo} 
+                        <img
+                          src={brand.logo}
                           alt={brand.name}
                           className="w-8 h-8 rounded-lg object-cover"
                         />
@@ -95,7 +95,7 @@ export function AddBrandPage() {
                 </div>
 
                 {/* Button */}
-                <button 
+                <button
                   onClick={handleSearchClick}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-black text-white rounded-lg hover:bg-gray-900 transition-colors text-sm font-medium"
                 >
@@ -119,7 +119,7 @@ export function AddBrandPage() {
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg mb-3">
                     <div className="text-sm text-gray-600">https://</div>
                     <div className="flex items-center gap-2">
-                      <img 
+                      <img
                         src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/2048px-2021_Facebook_icon.svg.png"
                         alt="Facebook"
                         className="w-4 h-4"
@@ -142,7 +142,7 @@ export function AddBrandPage() {
                 </div>
 
                 {/* Button */}
-                <button 
+                <button
                   onClick={handleAddNewClick}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[rgb(233,128,116)] text-white rounded-lg hover:bg-[rgb(225,95,80)] transition-colors text-sm font-medium"
                 >
@@ -156,10 +156,13 @@ export function AddBrandPage() {
       </div>
 
       {/* Dialog */}
-      <AddBrandDialog
-        open={dialogOpen}
-        onOpenChange={(open) => setDialogOpen(open)}
-        initialTab={initialTab}
+
+
+      <AddBrandModal
+        isOpen={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        totalCredits={2}
+        usedCredits={1}
       />
     </div>
   )
