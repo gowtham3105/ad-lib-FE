@@ -7,9 +7,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Separator } from "@/components/ui/separator"
 
-// Sample data for media mix distribution
+// Simplified media mix data for just image and video
 const mediaMixData = [
   {
     name: "Image",
@@ -18,19 +17,7 @@ const mediaMixData = [
   {
     name: "Video",
     total: 35,
-  },
-  {
-    name: "Carousel",
-    total: 28,
-  },
-  {
-    name: "Story",
-    total: 42,
-  },
-  {
-    name: "Reel",
-    total: 15,
-  },
+  }
 ]
 
 // Sample data for weekly ads trend (24 weeks = 6 months)
@@ -63,48 +50,48 @@ const weeklyAdsData = [
 
 export function AnalyticsSection() {
   return (
-    <div className="mb-8">
+    <div className="mb-6"> {/* Reduced margin */}
       <Card className="border border-gray-100/50">
-        <CardContent className="p-6">
-          <div className="grid gap-8 auto-rows-min grid-cols-1 xl:grid-cols-2 xl:divide-x xl:divide-gray-200">
+        <CardContent className="p-4 pb-0"> {/* Removed bottom padding */}
+          <div className="grid gap-4 auto-rows-min grid-cols-1 xl:grid-cols-2 xl:divide-x xl:divide-gray-200"> {/* Reduced gap */}
             {/* Media Mix Distribution */}
-            <div className="flex flex-col items-center xl:items-start xl:pr-8">
-              <div className="w-full mb-4">
+            <div className="flex flex-col items-center xl:items-start xl:pr-4"> {/* Reduced padding */}
+              <div className="w-full mb-3"> {/* Reduced margin */}
                 <div className="flex items-center gap-2">
-                  <h3 className="text-base font-semibold">Media Mix Distribution</h3>
+                  <h3 className="text-sm font-semibold">Media Mix Distribution</h3> {/* Reduced text size */}
                   <Tooltip>
                     <TooltipTrigger>
-                      <HelpCircle className="h-4 w-4 text-gray-400" />
+                      <HelpCircle className="h-3.5 w-3.5 text-gray-400" /> {/* Reduced icon size */}
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Breakdown of ad formats to identify what works best</p>
+                      <p>Breakdown of ad formats between images and videos</p>
                     </TooltipContent>
                   </Tooltip>
                 </div>
-                <CardDescription>Breakdown by ad format</CardDescription>
+                <CardDescription className="text-xs">Distribution of image vs video ads</CardDescription> {/* Reduced text size */}
               </div>
-              <div className="flex justify-center w-full">
+              <div className="flex justify-center w-full pb-0">
                 <MediaMixPieChart data={mediaMixData} />
               </div>
             </div>
 
             {/* Weekly Ads Trend */}
-            <div className="flex flex-col items-center xl:items-start xl:pl-8">
-              <div className="w-full mb-4">
+            <div className="flex flex-col items-center xl:items-start xl:pl-4"> {/* Reduced padding */}
+              <div className="w-full mb-3"> {/* Reduced margin */}
                 <div className="flex items-center gap-2">
-                  <h3 className="text-base font-semibold">Weekly Ads Trend</h3>
+                  <h3 className="text-sm font-semibold">Weekly Ads Trend</h3> {/* Reduced text size */}
                   <Tooltip>
                     <TooltipTrigger>
-                      <HelpCircle className="h-4 w-4 text-gray-400" />
+                      <HelpCircle className="h-3.5 w-3.5 text-gray-400" /> {/* Reduced icon size */}
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>Track ad frequency and identify campaign patterns</p>
                     </TooltipContent>
                   </Tooltip>
                 </div>
-                <CardDescription>Number of ads started each week</CardDescription>
+                <CardDescription className="text-xs">Number of ads started each week</CardDescription> {/* Reduced text size */}
               </div>
-              <div className="flex justify-center w-full">
+              <div className="flex justify-center w-full pb-0">
                 <WeeklyAdsTrendChart data={weeklyAdsData} />
               </div>
             </div>

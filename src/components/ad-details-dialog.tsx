@@ -1,11 +1,10 @@
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
-import { cn } from "@/lib/utils"
-import { useState } from "react"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { AdHeader } from "./ad-details/ad-header"
-import { AdContent } from "./ad-details/ad-content"
-import { AdSidebar } from "./ad-details/ad-sidebar"
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
+import { useState } from "react"
+import { AdContent } from "@/components/ad-details/ad-content"
+import { AdSidebar } from "@/components/ad-details/ad-sidebar"
+import { MenuBar } from "@/components/ui/bottom-menu"
+import { menuItems } from "@/components/ad-details/menu-items"
 
 interface AdDetailsDialogProps {
   open: boolean
@@ -13,45 +12,46 @@ interface AdDetailsDialogProps {
   adId: string
 }
 
-export function AdDetailsDialog({ open, onOpenChange, adId }: AdDetailsDialogProps) {
+export function AdDetailsDialog({ 
+  open, 
+  onOpenChange,
+  adId 
+}: AdDetailsDialogProps) {
   const isMobile = useIsMobile()
-  const [showDetails, setShowDetails] = useState(!isMobile)
+  const [showDetails, setShowDetails] = useState(false)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn(
-        "max-w-[95vw] w-[95vw] p-0",
-        isMobile ? "h-[100vh] max-h-[100vh]" : "h-[95vh] max-h-[95vh]"
-      )}>
-        <DialogTitle>
-          <VisuallyHidden>Advertisement Details</VisuallyHidden>
-        </DialogTitle>
-        
-        <div className={cn(
-          "flex relative bg-white",
-          isMobile ? "flex-col h-full" : "h-full"
-        )}>
-          {/* Main Content Area */}
-          <div className={cn(
-            "relative",
-            isMobile ? "h-[50vh]" : "flex-1"
-          )}>
-            <AdHeader onClose={() => onOpenChange(false)} />
+      <DialogContent 
+        className="p-0 overflow-hidden max-w-[1400px] w-full h-[100dvh] md:h-[85vh] md:rounded-2xl"
+      >
+        <div className="flex h-full">
+          {/* Main Content */}
+          <div className="flex-1 flex flex-col bg-gray-50">
             <AdContent isMobile={isMobile} />
           </div>
 
-          {/* Mobile Toggle Button */}
-          {isMobile && (
-            <button
-              onClick={() => setShowDetails(!showDetails)}
-              className="p-2 w-full bg-white border-t border-gray-100 text-sm font-medium text-gray-600"
-            >
-              {showDetails ? "Hide Details" : "Show Details"}
-            </button>
-          )}
-
           {/* Sidebar */}
-          <AdSidebar isMobile={isMobile} showDetails={showDetails} />
+          <AdSidebar 
+            isMobile={isMobile} 
+            showDetails={showDetails} 
+          />
+
+          {/* Mobile Menu Bar */}
+          {isMobile && (
+            <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 py-2 px-4">
+              <MenuBar 
+                items={[
+                  ...menuItems,
+                  {
+                    icon: showDetails ? "ChevronDown" : "ChevronUp",
+                    label: showDetails ? "Hide Details" : "Show Details",
+                    onClick: () => setShowDetails(!showDetails)
+                  }
+                ]} 
+              />
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

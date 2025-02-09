@@ -115,15 +115,9 @@ export function PageHeader({ brandDetails }: PageHeaderProps) {
             {formatCount(brandDetails.activeCount)} active
           </span>
         </div>
-        <div className="flex items-center gap-1.5">
-          <div className="h-1.5 w-1.5 rounded-full bg-gray-200" />
-          <span className="font-medium text-gray-600">
-            {formatCount(brandDetails.inactiveCount || 0)} inactive
-          </span>
-        </div>
       </div>
     );
-  }, [brandId, brandDetails?.activeCount, brandDetails?.inactiveCount]);
+  }, [brandId, brandDetails?.activeCount]);
 
   return (
     <div className="flex items-center justify-between w-full">

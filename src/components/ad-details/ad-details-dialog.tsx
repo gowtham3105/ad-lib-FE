@@ -41,7 +41,7 @@ export function AdDetailsDialog({ open, onOpenChange, adId }: AdDetailsDialogPro
         )}
       >
         <DialogTitle>
-          <VisuallyHidden>Advertisement Details</VisuallyHidden>
+          <VisuallyHidden>View Advertisement Details</VisuallyHidden>
         </DialogTitle>
 
         {/* Close Button */}

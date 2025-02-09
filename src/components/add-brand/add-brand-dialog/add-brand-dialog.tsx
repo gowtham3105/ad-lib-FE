@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { searchBrands, BrandSearchResult } from '../../../lib/fetch-brand-suggestions';
+import { searchBrands, BrandSearchResult, createBrandFromUrl } from '../../../lib/add-brand-api';
 import SearchTab from './search-bar';
 import ManualTab from './manual-tab';
 import ModalFooter from './model-footer';
+import { useAuth } from "@clerk/clerk-react"
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
+
 
 interface AddBrandModalProps {
   isOpen: boolean;
@@ -13,6 +17,7 @@ interface AddBrandModalProps {
 }
 
 export default function AddBrandModal({ isOpen, onClose, totalCredits = 2, usedCredits = 0 }: AddBrandModalProps) {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'search' | 'manual'>('search');
   const [searchQuery, setSearchQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
@@ -20,7 +25,12 @@ export default function AddBrandModal({ isOpen, onClose, totalCredits = 2, usedC
   const [error, setError] = useState<string | null>(null);
   const [brands, setBrands] = useState<BrandSearchResult[]>([]);
   const [offset, setOffset] = useState(0);
+  const [url, setUrl] = useState('');
   const [isUrlValid, setIsUrlValid] = useState(false);
+  const [isCreatingBrand, setIsCreatingBrand] = useState(false);
+  const { getToken } = useAuth();
+  const { toast } = useToast()
+
   const limit = 10;
   
   // Initial search when modal opens
@@ -31,10 +41,12 @@ export default function AddBrandModal({ isOpen, onClose, totalCredits = 2, usedC
         setError(null);
 
         try {
-          const results = await searchBrands('', offset, limit);
+          var token = await getToken();
+          const results = await searchBrands('', offset, limit, token);
           setBrands(results);
         } catch (err) {
           setError('Failed to fetch brands. Please try again.');
+        
         } finally {
           setIsLoading(false);
         }
@@ -50,7 +62,8 @@ export default function AddBrandModal({ isOpen, onClose, totalCredits = 2, usedC
       setError(null);
 
       try {
-        const results = await searchBrands(searchQuery, offset, limit);
+        var token = await getToken();
+        const results = await searchBrands(searchQuery, offset, limit, token);
         setBrands(results);
       } catch (err) {
         setError('Failed to fetch brands. Please try again.');
@@ -63,10 +76,34 @@ export default function AddBrandModal({ isOpen, onClose, totalCredits = 2, usedC
     return () => clearTimeout(debounceTimer);
   }, [searchQuery, offset]);
 
+  const handleCreateBrand = async () => {
+    setIsCreatingBrand(true);
+    try {
+      var token = await getToken();
+      const { external_id } = await createBrandFromUrl(url, token);
+      
+      if (external_id) {
+        onClose();
+        navigate(`/track-brands/${external_id}`);
+      }
+    } catch (error) {
+      console.error('Failed to create brand:', error);
+    
+
+    toast({
+      title: "Uhh.. Something went wrong",
+      description: "Our experts are working on it. Please try again later."
+    })
+    } finally {
+      setIsCreatingBrand(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+      
       <div className="bg-card text-card-foreground rounded-xl shadow-lg w-[490px] modal-animation">
         <div className="p-5">
           <div className="flex flex-col gap-4 relative">
@@ -131,13 +168,22 @@ export default function AddBrandModal({ isOpen, onClose, totalCredits = 2, usedC
             />
           )}
           {activeTab === 'manual' && (
-            <ManualTab onValidChange={setIsUrlValid} />
+            <ManualTab 
+              url={url}
+              setUrl={setUrl}
+              isLoading={isCreatingBrand}
+              onValidChange={setIsUrlValid}
+              onClose={onClose}
+            />
           )}
 
           <ModalFooter
+            showAddButton={activeTab === 'manual'}
             totalCredits={totalCredits}
             usedCredits={usedCredits}
-            isDisabled={activeTab === 'manual' && !isUrlValid}
+            isDisabled={activeTab === 'manual' && (!isUrlValid || isCreatingBrand)}
+            onAddBrand={activeTab === 'manual' ? () => handleCreateBrand() : undefined}
+            isLoading={isCreatingBrand}
           />
         </div>
       </div>

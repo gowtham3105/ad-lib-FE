@@ -38,8 +38,7 @@ export function TrackBrandsPage() {
         setBrandDetails({
           name: data.name,
           logo: data.logo,
-          activeCount: 1000, // These would come from the API
-          inactiveCount: 100
+          activeCount: data.ad_count
         })
       } catch (error) {
         console.error('Error fetching brand details:', error)
@@ -67,7 +66,7 @@ export function TrackBrandsPage() {
         body: JSON.stringify({ 
           page: pageNumber,
           brand_id: brandId,
-          limit: 40
+          limit: 20
         }),
       })
 

@@ -182,12 +182,12 @@ export const MediaCard = memo(function MediaCard({
         onClick={handleCardClick}
       >
         {/* Card Header */}
-        <div className="flex items-center justify-between p-4">
+        <div className="flex items-center justify-between px-4 pt-2.5 pb-2">
           <div className="flex items-center gap-3">
             <img 
               src={brandLogo} 
               alt={brandName}
-              className="w-6 h-6 rounded-full object-cover"
+              className="w-7 h-7 rounded-lg object-cover"
             />
             <span className="font-medium text-gray-900">{brandName}</span>
           </div>
@@ -268,7 +268,7 @@ export const MediaCard = memo(function MediaCard({
         </div>
 
         {/* Card Footer */}
-        <div className="py-2.5 px-4">
+        <div className="pt-1.5 pb-2 px-4">
           <div className="flex items-center justify-between">
             <button 
               onClick={handleCopyLink}

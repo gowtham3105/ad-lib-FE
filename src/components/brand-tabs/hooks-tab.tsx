@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { useParams } from "react-router-dom"
-import { Copy, Star, Volume2 } from "lucide-react"
+import { Copy, Volume2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@clerk/clerk-react"
@@ -48,8 +48,12 @@ export function HooksTab({ brandDetails }: HooksTabProps) {
   const handlePlayAudio = (hookId: string, audioUrl: string) => {
     if (playingHookId === hookId) {
       if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current.currentTime = 0
+        try {
+          audioRef.current.pause()
+          audioRef.current.currentTime = 0
+        } catch (error) {
+          console.warn("Error stopping audio:", error)
+        }
         setPlayingHookId(null)
       }
       return
@@ -57,36 +61,60 @@ export function HooksTab({ brandDetails }: HooksTabProps) {
 
     // Stop any currently playing audio
     if (audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current.currentTime = 0
+      try {
+        audioRef.current.pause()
+        audioRef.current.currentTime = 0
+      } catch (error) {
+        console.warn("Error stopping audio:", error)
+      }
     }
 
     // Create or reuse audio element
     if (!audioRef.current) {
-      audioRef.current = new Audio(staticAudioUrl)
       audioRef.current = new Audio()
       audioRef.current.addEventListener('ended', () => {
         setPlayingHookId(null)
       })
     }
 
-    // Play the audio
-    audioRef.current.src = audioUrl
-    const playPromise = audioRef.current.play()
-    
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          setPlayingHookId(hookId)
-        })
-        .catch(error => {
-          console.error("Audio playback failed:", error)
-          toast({
-            title: "Playback failed",
-            description: "Could not play the audio file",
-            variant: "destructive"
+    // Check audio format support
+    const canPlayAudio = () => {
+      const audio = document.createElement('audio')
+      return audio.canPlayType('audio/mpeg') !== "" || 
+             audio.canPlayType('audio/wav') !== "" ||
+             audio.canPlayType('audio/ogg') !== ""
+    }
+
+    // Attempt to play audio with better error handling
+    try {
+      if (!canPlayAudio()) {
+        throw new Error("Audio format not supported by browser")
+      }
+
+      audioRef.current.src = audioUrl
+      const playPromise = audioRef.current.play()
+      
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setPlayingHookId(hookId)
           })
-        })
+          .catch(error => {
+            console.warn("Audio playback failed:", error)
+            toast({
+              title: "Audio Unavailable",
+              description: "The audio preview is currently unavailable. Please try again later.",
+              variant: "destructive"
+            })
+          })
+      }
+    } catch (error) {
+      console.warn("Audio setup failed:", error)
+      toast({
+        title: "Audio Unsupported",
+        description: "Your browser doesn't support this audio format.",
+        variant: "destructive"
+      })
     }
   }
 
@@ -107,7 +135,8 @@ export function HooksTab({ brandDetails }: HooksTabProps) {
       try {
         setLoading(true)
         const token = await getToken()
-        const response = await fetch(`https://run.mocky.io/v3/b18fdcd9-ee50-41a7-bacb-4f52f58e3744`, {
+        // http://localhost:8000/transcript/brand/:external_id
+        const response = await fetch(`http://127.0.0.1:8000/transcript/brand/${brandId}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -136,11 +165,20 @@ export function HooksTab({ brandDetails }: HooksTabProps) {
   const sortedHooks = [...hooks].sort((a, b) => b.useCount - a.useCount)
   const maxUseCount = sortedHooks[0]?.useCount || 1
 
+  const getUsageColor = (count: number) => {
+    if (count >= 1000) return "bg-blue-50 text-blue-600"
+    if (count >= 500) return "bg-purple-50 text-purple-600"
+    if (count >= 250) return "bg-pink-50 text-pink-600"
+    if (count >= 100) return "bg-orange-50 text-orange-600"
+    if (count >= 50) return "bg-green-50 text-green-600"
+    return "bg-gray-50 text-gray-600"
+  }
+
   const handleCopyHook = async (hook: string) => {
     await navigator.clipboard.writeText(hook)
     toast({
-      title: "Hook copied",
-      description: "The hook has been copied to your clipboard",
+      description: "Hook copied to clipboard",
+      className: "bg-black text-white border-none",
     })
   }
 
@@ -173,51 +211,37 @@ export function HooksTab({ brandDetails }: HooksTabProps) {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-4">
-        <h1 className="text-2xl font-bold text-gray-900">Ad Hook Library</h1>
-        <p className="text-gray-600 mt-2">Explore and manage your marketing hooks</p>
+        <h1 className="text-2xl font-semibold text-gray-900 font-switzer">Ad Hook Library</h1>
+        <p className="text-gray-600 mt-2 font-switzer">Explore and manage your marketing hooks</p>
       </div>
 
       <div className="columns-1 md:columns-2 lg:columns-3 gap-3">
-        {sortedHooks.map((hook) => (
+        {sortedHooks.map((hook, index) => (
           <div 
             key={hook.id}
-            className="break-inside-avoid mb-3"
+            className="break-inside-avoid mb-4"
           >
             <div className="bg-white rounded-xl overflow-hidden border border-gray-100/50 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all duration-300 hover:translate-y-[-2px)]">
-              <div className="p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  {brandDetails && (
-                    <div className="flex items-center gap-2">
-                      <img 
-                        src={brandDetails.logo}
-                        alt={`${brandDetails.name} logo`}
-                        className="h-6 w-auto rounded-sm"
-                      />
-                      {hook.useCount === maxUseCount && (
-                        <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-amber-500/10 to-yellow-500/10 text-amber-600 rounded-full border border-amber-200/50 text-[11px] font-medium">
-                          <Star className="w-3 h-3 fill-amber-500" />
-                          Best Hook
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  <button
-                    onClick={() => toggleFavorite(hook.id)}
-                    className={cn(
-                      "p-1 hover:text-yellow-500 transition-colors",
-                      hook.isFavorite && "text-yellow-500"
-                    )}
-                  >
-                    <Star className="h-5 w-5" fill={hook.isFavorite ? "currentColor" : "none"} />
-                  </button>
-                </div>
+              <div className="p-4 pb-2">
+                {brandDetails && (
+                  <div className="flex items-center gap-2 mb-3">
+                    <img 
+                      src={brandDetails.logo}
+                      alt={`${brandDetails.name} logo`}
+                      className="h-6 w-auto rounded-sm"
+                    />
+                  </div>
+                )}
 
-                <div className="text-gray-900">
+                <div className="text-gray-900 font-switzer text-base">
                   {highlightKeywords(hook.name, ['mom', 'low fees', 'brazil', 'family'])}
                 </div>
 
-                <div className="flex items-center justify-between border-t pt-3">
-                  <div className="text-sm text-gray-600">
+                <div className="flex items-center justify-between mt-2">
+                  <div className={cn(
+                    "text-xs font-medium px-2 py-1 rounded-full",
+                    getUsageColor(hook.useCount)
+                  )}>
                     Used {hook.useCount} times
                   </div>
                   <div className="flex items-center gap-1">
@@ -238,7 +262,7 @@ export function HooksTab({ brandDetails }: HooksTabProps) {
                     <button
                       onClick={() => handleCopyHook(hook.name)}
                       className="p-1.5 hover:bg-gray-50 rounded-full transition-colors"
-                      title="Copy"
+                      title="Copy hook"
                     >
                       <Copy className="h-4 w-4 text-gray-600" />
                     </button>

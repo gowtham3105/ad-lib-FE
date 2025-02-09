@@ -115,38 +115,28 @@ export function LandingPagesTab() {
       <div className="flex gap-6 h-[calc(100vh-200px)]">
         {/* Left side - Landing pages list */}
         <div className="w-[400px] flex-shrink-0 rounded-xl border border-gray-100/50 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] overflow-hidden">
-          <div className="px-6 py-4 border-b">
+          <div className="px-6 h-14 flex items-center border-b">
             <h3 className="font-semibold">Landing Pages</h3>
           </div>
-          <div className="overflow-auto h-[calc(100%-65px)]">
+          <div className="overflow-auto h-[calc(100%-65px)] custom-scrollbar">
             {sortedPages.map((page) => (
-              <div
+              <div 
                 key={page.id}
                 className={cn(
-                  "flex items-center hover:bg-[#f3f3f3] transition-all cursor-pointer group px-6 py-2.5",
+                  "flex items-center hover:bg-[#f3f3f3] transition-all cursor-pointer group px-6 py-3.5",
                   selectedPage?.id === page.id && "bg-[#f9f9f9]"
                 )}
                 onClick={() => handlePageSelect(page)}
               >
                 <div className="flex-1 flex items-center gap-3 min-w-0">
                   <ExternalLink className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 py-0.5">
                     <span className="block text-sm text-gray-600 truncate">
                       {page.url}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-500">{page.count}</span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleCopyLink(page.url)
-                      }}
-                      className="p-1.5 hover:bg-gray-100 rounded-md transition-colors opacity-0 group-hover:opacity-100"
-                      title="Copy link"
-                    >
-                      <Copy className="h-4 w-4 text-gray-400" />
-                    </button>
                   </div>
                 </div>
               </div>
@@ -156,39 +146,62 @@ export function LandingPagesTab() {
 
         {/* Right side - Screenshot preview */}
         <div className="flex-1 rounded-xl border border-gray-100/50 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] overflow-hidden">
-          <div className="px-6 py-4 border-b flex items-center justify-between">
+          <div className="px-6 h-14 flex items-center justify-between border-b">
             <div>
               <h3 className="font-semibold">Screenshot Preview</h3>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => selectedPage && handleCopyLink(selectedPage.url)}
+                className="p-2.5 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors"
+                title="Copy URL"
+              >
+                <Copy className="h-4 w-4 text-gray-600" />
+              </button>
               <a
                 href={selectedPage?.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-all text-sm"
+                className="p-2.5 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors"
+                title="Visit page"
               >
                 <ExternalLink className="h-4 w-4" />
-                Visit Page
               </a>
             </div>
           </div>
-          <div className="relative p-6 h-[calc(100%-65px)] overflow-auto bg-[#f3f3f3]">
+          <div className="relative p-6 h-[calc(100%-65px)] overflow-auto bg-[#f3f3f3] custom-scrollbar">
             {selectedPage ? (
-              <div className="relative">
-                <img
-                  src={selectedPage.screenshot_url}
-                  alt={`Screenshot of ${selectedPage.url}`}
-                  className="w-full h-auto rounded-lg border border-gray-100"
-                />
-                <button
-                  onClick={() => selectedPage && handleDownloadScreenshot(selectedPage.screenshot_url)}
-                  disabled={!selectedPage}
-                  className="absolute left-4 bottom-4 p-2.5 rounded-xl bg-white/90 backdrop-blur-[2px] border border-gray-200/50 shadow-sm hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  title="Download screenshot"
-                >
-                  <Download className="h-5 w-5 text-gray-700" />
-                </button>
-              </div>
+              selectedPage.screenshot_url ? (
+                <div className="relative">
+                  <img
+                    src={selectedPage.screenshot_url}
+                    alt={`Screenshot of ${selectedPage.url}`}
+                    className="w-full h-auto rounded-lg border border-gray-100"
+                  />
+                  <button
+                    onClick={() => selectedPage && handleDownloadScreenshot(selectedPage.screenshot_url)}
+                    disabled={!selectedPage}
+                    className="absolute left-4 bottom-4 p-2.5 rounded-xl bg-white/90 backdrop-blur-[2px] border border-gray-200/50 shadow-sm hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Download screenshot"
+                  >
+                    <Download className="h-5 w-5 text-gray-700" />
+                  </button>
+                </div>
+              ) : (
+                <div className="h-full flex flex-col items-center justify-center text-center p-8">
+                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                    <img
+                      src="https://i.ibb.co/DrTd1jz/Untitled-design.png"
+                      alt="Juni Logo"
+                      className="w-8 h-8 opacity-50"
+                    />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Preview Not Available</h3>
+                  <p className="text-gray-500 max-w-sm">
+                    We're currently processing this landing page. Check back soon to see the preview.
+                  </p>
+                </div>
+              )
             ) : (
               <div className="flex items-center justify-center h-full text-gray-500">
                 No screenshot available

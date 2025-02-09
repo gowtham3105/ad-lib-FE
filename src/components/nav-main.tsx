@@ -3,7 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
 import { UpgradeDialog } from "@/components/upgrade-dialog"
-import { Bot, BookOpen, HelpCircle, Plus, SquareTerminal } from "lucide-react"
+import { Bot, BookOpen, HelpCircle, Plus, SquareTerminal, Sparkles } from "lucide-react"
+import { GlowEffect } from "@/components/ui/glow-effect"
 
 import {
   SidebarGroup,
@@ -13,6 +14,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/3d-button"
+import PricingPopup from "./pricing-dialog"
 
 interface NavItem {
   title: string
@@ -171,22 +173,34 @@ export function NavMain({
 
       {/* Trial Status */}
       {!isCollapsed && (
-        <div className="mt-auto px-4 py-4 group-data-[collapsible=icon]:hidden">
-          <div className="rounded-xl bg-sidebar-accent p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="h-2 w-2 rounded-full bg-gradient-to-br from-pink-300 to-purple-400 animate-pulse" />
-              <span className="text-[13px] font-medium text-sidebar-foreground">6 days left for trial</span>
+        <div className="mt-auto px-2 py-2 group-data-[collapsible=icon]:hidden">
+          <div className="relative rounded-2xl bg-[#1C1C1C] p-4 overflow-hidden">
+            <GlowEffect
+              colors={['#2A9D8F', '#264653', '#E9B44C', '#E76F51', '#E9B44C', '#2A9D8F']}
+              mode="colorShift"
+              blur="strong"
+              scale={1.5}
+             duration={20}
+              className="opacity-20"
+            />
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-5 h-5 rounded-full bg-[#2C2C2C] flex items-center justify-center">
+                <div className="w-2 h-2 rounded-full bg-[#E76F51]/60 animate-blink" />
+              </div>
+              <span className="text-[15px] font-medium text-white">6 days left</span>
             </div>
+            <div className="text-[13px] text-gray-400 mb-3">Access to 40+ million ads</div>
             <button 
               onClick={() => handleNavigation('#upgrade')}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 text-[15px] font-medium rounded-xl bg-sidebar-accent/50 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-all duration-200"
+              className="w-full flex items-center justify-center px-3 py-1.5 bg-white hover:bg-gray-100 text-black rounded-full transition-all duration-200 text-[15px] font-medium"
             >
               Upgrade
             </button>
           </div>
         </div>
       )}
-      <UpgradeDialog open={showUpgrade} onOpenChange={setShowUpgrade} />
+            <PricingPopup isOpen={showUpgrade} onClose={() => setShowUpgrade(false)} />
+
     </SidebarGroup>
   )
 }

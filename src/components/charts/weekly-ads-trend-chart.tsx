@@ -21,26 +21,26 @@ const chartConfig = {
 
 export function WeeklyAdsTrendChart({ data }: WeeklyAdsTrendChartProps) {
   return (
-    <div className="w-full max-w-[480px] h-[280px]">
+    <div className="w-full max-w-[480px] h-[200px]"> {/* Increased height slightly */}
       <ChartContainer config={chartConfig}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={data}
             margin={{
               top: 20,
-              right: 20,
+              right: 10,
               left: 10,
-              bottom: 5,
+              bottom: 15, // Increased bottom margin
             }}
           >
             <XAxis 
               dataKey="week"
               axisLine={false}
               tickLine={false}
-              tickMargin={8}
-              tick={{ fontSize: 12 }}
+              tickMargin={4}
+              tick={{ fontSize: 11 }}
+              height={20} // Added explicit height
               tickFormatter={(value, index) => {
-                // Show month name only for the first week of each month
                 const currentItem = data[index]
                 const prevItem = index > 0 ? data[index - 1] : null
                 return prevItem?.month !== currentItem.month ? currentItem.month : ""
@@ -54,12 +54,12 @@ export function WeeklyAdsTrendChart({ data }: WeeklyAdsTrendChartProps) {
 
                 const data = payload[0].payload as WeeklyAdsData
                 return (
-                  <div className="rounded-lg border bg-background p-2 shadow-sm">
+                  <div className="rounded-lg border bg-background p-1.5 shadow-sm text-xs">
                     <div className="flex flex-col items-center">
-                      <span className="text-[0.70rem] uppercase text-muted-foreground">
+                      <span className="uppercase text-muted-foreground">
                         Ad Count
                       </span>
-                      <span className="font-bold text-base">
+                      <span className="font-bold">
                         {data.ads}
                       </span>
                     </div>
@@ -71,10 +71,10 @@ export function WeeklyAdsTrendChart({ data }: WeeklyAdsTrendChartProps) {
               type="monotone"
               dataKey="ads"
               stroke="hsl(var(--chart-1))"
-              strokeWidth={2}
+              strokeWidth={1.5}
               dot={false}
               activeDot={{
-                r: 3,
+                r: 2.5,
                 fill: "hsl(var(--chart-1))",
                 strokeWidth: 0
               }}

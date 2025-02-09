@@ -1,12 +1,16 @@
 import React from 'react';
-import { PlayCircle, Plus, Sparkles } from 'lucide-react';
+import { PlayCircle, Plus, Sparkles, Loader2 } from 'lucide-react';
 
 interface ModalFooterProps {
+  showAddButton?: boolean;
   totalCredits: number;
   usedCredits: number;
+  isDisabled?: boolean;
+  isLoading?: boolean;
+  onAddBrand?: () => void;
 }
 
-export default function ModalFooter({ totalCredits, usedCredits }: ModalFooterProps) {
+export default function ModalFooter({ showAddButton = true, totalCredits, usedCredits, isDisabled, isLoading, onAddBrand }: ModalFooterProps) {
   return (
     <div className="flex justify-between items-center p-4 border-t border-border bg-muted/30">
       <button 
@@ -25,17 +29,24 @@ export default function ModalFooter({ totalCredits, usedCredits }: ModalFooterPr
           </span>
           <span className="text-muted-foreground font-medium">credits</span>
         </div>
-        <button 
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 shadow-sm ${
-            usedCredits >= totalCredits
-              ? 'bg-muted text-muted-foreground cursor-not-allowed'
-              : 'bg-primary text-primary-foreground hover:bg-primary/90'
-          }`}
-          disabled={usedCredits >= totalCredits}
-        >
-          <Plus size={16} />
-          <span>Add Brand</span>
-        </button>
+        {showAddButton && (
+          <button 
+            onClick={onAddBrand}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 shadow-sm ${
+              usedCredits >= totalCredits || isDisabled
+                ? 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'
+                : 'bg-primary text-primary-foreground hover:bg-primary/90'
+            }`}
+            disabled={usedCredits >= totalCredits || isDisabled}
+          >
+            {isLoading ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <Plus size={16} />
+            )}
+            <span>Add Brand</span>
+          </button>
+        )}
       </div>
     </div>
   );

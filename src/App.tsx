@@ -11,6 +11,7 @@ import { AccountPage } from "@/pages/account"
 import { SignInPage } from "@/pages/sign-in"
 import { AdDetailsPage } from "@/pages/ad-details"
 import { NotFoundPage } from "@/pages/not-found"
+import { Toaster } from "@/components/ui/toaster"
 
 if (!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY) {
   throw new Error("Missing Clerk Publishable Key")
@@ -31,7 +32,7 @@ export default function App() {
                   <SidebarProvider>
                     <div className="flex h-screen w-full bg-sidebar">
                       {/* Sidebar */}
-                      <div className="flex-shrink-0">
+                      <div className="flex-shrink-0 border-none">
                         <AppSidebar />
                       </div>
                       
@@ -60,6 +61,7 @@ export default function App() {
           />
         </Routes>
       </Router>
+      <Toaster />
     </ClerkProvider>
   )
 }

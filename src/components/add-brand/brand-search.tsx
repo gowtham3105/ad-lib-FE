@@ -5,46 +5,6 @@ import { Search, Loader2, ChevronDown, Heart, TrendingUp } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-// Sample suggestions data
-const SAMPLE_SUGGESTIONS = [
-  {
-    id: "1",
-    name: "RYZE Superfoods",
-    logo: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=100&auto=format&fit=crop",
-    count: 41316
-  },
-  {
-    id: "2",
-    name: "PetLab Co.",
-    logo: "https://images.unsplash.com/photo-1543508282-6319a3e2621f?q=80&w=100&auto=format&fit=crop",
-    count: 21428
-  },
-  {
-    id: "3",
-    name: "Hismile",
-    logo: "https://images.unsplash.com/photo-1608231387042-66d1773070a5?q=80&w=100&auto=format&fit=crop",
-    count: 20068
-  },
-  {
-    id: "4",
-    name: "hims",
-    logo: "https://images.unsplash.com/photo-1556906781-9a412961c28c?q=80&w=100&auto=format&fit=crop",
-    count: 8804
-  },
-  {
-    id: "5",
-    name: "Dr. Squatch",
-    logo: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=100&auto=format&fit=crop",
-    count: 10671
-  },
-  {
-    id: "6",
-    name: "AC1 by Athletic Greens",
-    logo: "https://images.unsplash.com/photo-1543508282-6319a3e2621f?q=80&w=100&auto=format&fit=crop",
-    count: 7173
-  }
-]
-
 // Sample recommended brands
 const RECOMMENDED_BRANDS = [
   {
@@ -214,7 +174,7 @@ export function BrandSearch() {
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-base">{suggestion.name}</div>
                         <div className="text-sm text-gray-500">
-                          {suggestion.count.toLocaleString()} ads
+                          {suggestion.totalAds.toLocaleString()} ads
                         </div>
                       </div>
                     </div>
