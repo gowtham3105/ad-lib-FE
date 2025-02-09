@@ -7,6 +7,7 @@ import ModalFooter from './model-footer';
 import { useAuth } from "@clerk/clerk-react"
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { BrandCreationProvider, useBrandCreation } from '@/context/brand-creation-context';
 
 
 interface AddBrandModalProps {
@@ -28,10 +29,35 @@ export default function AddBrandModal({ isOpen, onClose, totalCredits = 2, usedC
   const [url, setUrl] = useState('');
   const [isUrlValid, setIsUrlValid] = useState(false);
   const [isCreatingBrand, setIsCreatingBrand] = useState(false);
-  const { getToken } = useAuth();
-  const { toast } = useToast()
-
+  const [showErrorToast, setShowErrorToast] = useState(false);
   const limit = 10;
+  const { getToken } = useAuth();
+  
+  const { getBrandCreationStatus, clearBrandCreation } = useBrandCreation();
+  const [currentPageId, setCurrentPageId] = useState<string | null>(null);
+
+  // Effect to continuously check brand creation status
+  useEffect(() => {
+    if (isCreatingBrand && currentPageId) {
+      const checkStatus = () => {
+        const status = getBrandCreationStatus(currentPageId);
+        
+        if (status?.status === 'success' && status.brandId) {
+          setIsCreatingBrand(false);
+          clearBrandCreation(currentPageId);
+          onClose();
+          navigate(`/track-brands/${status.brandId}`);
+        } else if (status?.status === 'error') {
+          setIsCreatingBrand(false);
+          setShowErrorToast(true);
+          clearBrandCreation(currentPageId);
+        }
+      };
+
+      const intervalId = setInterval(checkStatus, 1000);
+      return () => clearInterval(intervalId);
+    }
+  }, [isCreatingBrand, currentPageId, getBrandCreationStatus, clearBrandCreation, navigate, onClose]);
   
   // Initial search when modal opens
   useEffect(() => {
@@ -41,7 +67,7 @@ export default function AddBrandModal({ isOpen, onClose, totalCredits = 2, usedC
         setError(null);
 
         try {
-          var token = await getToken();
+          const token = await getToken();
           const results = await searchBrands('', offset, limit, token);
           setBrands(results);
         } catch (err) {
@@ -62,7 +88,7 @@ export default function AddBrandModal({ isOpen, onClose, totalCredits = 2, usedC
       setError(null);
 
       try {
-        var token = await getToken();
+        const token = await getToken();
         const results = await searchBrands(searchQuery, offset, limit, token);
         setBrands(results);
       } catch (err) {
@@ -79,22 +105,13 @@ export default function AddBrandModal({ isOpen, onClose, totalCredits = 2, usedC
   const handleCreateBrand = async () => {
     setIsCreatingBrand(true);
     try {
-      var token = await getToken();
-      const { external_id } = await createBrandFromUrl(url, token);
-      
-      if (external_id) {
-        onClose();
-        navigate(`/track-brands/${external_id}`);
-      }
+      const pageId = new URL(url).searchParams.get('view_all_page_id');
+      if (!pageId) throw new Error('Invalid URL');
+
+      setCurrentPageId(pageId);
     } catch (error) {
       console.error('Failed to create brand:', error);
-    
-
-    toast({
-      title: "Uhh.. Something went wrong",
-      description: "Our experts are working on it. Please try again later."
-    })
-    } finally {
+      setShowErrorToast(true);
       setIsCreatingBrand(false);
     }
   };
@@ -103,7 +120,12 @@ export default function AddBrandModal({ isOpen, onClose, totalCredits = 2, usedC
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-      
+      {/* {showErrorToast && (
+        <Toast
+          message="Unable to add Brand"
+          onClose={() => setShowErrorToast(false)}
+        />
+      )} */}
       <div className="bg-card text-card-foreground rounded-xl shadow-lg w-[490px] modal-animation">
         <div className="p-5">
           <div className="flex flex-col gap-4 relative">

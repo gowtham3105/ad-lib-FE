@@ -1,6 +1,7 @@
 import { Search, Plus } from "lucide-react"
 import { useState } from "react"
 import AddBrandModal from "@/components/add-brand/add-brand-dialog/add-brand-dialog"
+import { BrandCreationProvider } from "@/context/brand-creation-context"
 
 export function AddBrandPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -157,6 +158,7 @@ export function AddBrandPage() {
 
       {/* Dialog */}
 
+      <BrandCreationProvider>
 
       <AddBrandModal
         isOpen={dialogOpen}
@@ -164,6 +166,7 @@ export function AddBrandPage() {
         totalCredits={2}
         usedCredits={1}
       />
+       </BrandCreationProvider>
     </div>
   )
 }

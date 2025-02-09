@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Link2, Facebook, CheckCircle2, XCircle, PlayCircle } from 'lucide-react';
 import loadingAnimation from '../../../assets/brand_loading.json';
 import Lottie from 'lottie-react';
+import { useBrandCreation } from '../../../context/brand-creation-context';
 
 
 const LOADING_STATES = [
@@ -73,6 +74,27 @@ const LOADING_STATES = [
     });
     const [isFocused, setIsFocused] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { createBrandInBackground, getBrandCreationStatus } = useBrandCreation();
+  
+    // Start brand creation in background when URL is valid
+    useEffect(() => {
+      if (validation.isValid && url) {
+        createBrandInBackground(url);
+      }
+    }, [validation.isValid, url, createBrandInBackground]);
+  
+    // Check brand creation status when URL changes
+    useEffect(() => {
+      if (validation.isValid && url) {
+        const pageId = new URL(url).searchParams.get('view_all_page_id');
+        if (pageId) {
+          const status = getBrandCreationStatus(pageId);
+          if (status?.status === 'error') {
+            setError(status.error);
+          }
+        }
+      }
+    }, [validation.isValid, url, getBrandCreationStatus]);
   
     useEffect(() => {
       if (isLoading) {
