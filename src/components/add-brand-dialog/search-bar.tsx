@@ -1,6 +1,6 @@
 import React from 'react';
 import { Search, X, Loader2, Loader } from 'lucide-react';
-import { BrandSearchResult, saveBrand } from '../../../lib/add-brand-api';
+import { BrandSearchResult, saveBrand } from '../../lib/add-brand-api';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "@clerk/clerk-react"
 
@@ -38,13 +38,16 @@ export default function SearchTab({
   setOffset,
 }: SearchTabProps) {
   const navigate = useNavigate();
+  const { getToken } = useAuth();
   const [savingBrandId, setSavingBrandId] = React.useState<string | null>(null);
 
   const handleBrandSelect = async (brand: BrandSearchResult) => {
     try {
       setSavingBrandId(brand.id);
-      await saveBrand(brand.id);
-      navigate(`/brand/${brand.id}`);
+      const token = await getToken();
+
+      await saveBrand(brand.id, token);
+      navigate(`/track-brands/${brand.id}`);
     } catch (error) {
       console.error('Failed to save brand:', error);
       // You might want to show an error toast here

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { searchBrands, BrandSearchResult, createBrandFromUrl } from '../../../lib/add-brand-api';
+import { searchBrands, BrandSearchResult, createBrandFromUrl } from '../../lib/add-brand-api';
 import SearchTab from './search-bar';
 import ManualTab from './manual-tab';
 import ModalFooter from './model-footer';
@@ -29,7 +29,7 @@ export default function AddBrandModal({ isOpen, onClose, totalCredits = 2, usedC
   const [url, setUrl] = useState('');
   const [isUrlValid, setIsUrlValid] = useState(false);
   const [isCreatingBrand, setIsCreatingBrand] = useState(false);
-  const [showErrorToast, setShowErrorToast] = useState(false);
+  const {toast} = useToast();
   const limit = 10;
   const { getToken } = useAuth();
   
@@ -49,8 +49,13 @@ export default function AddBrandModal({ isOpen, onClose, totalCredits = 2, usedC
           navigate(`/track-brands/${status.brandId}`);
         } else if (status?.status === 'error') {
           setIsCreatingBrand(false);
-          setShowErrorToast(true);
           clearBrandCreation(currentPageId);
+
+          toast({
+            title: 'Failed to create brand',
+            description: 'An unknown error occurred. Please try again.',
+          });
+
         }
       };
 
@@ -111,7 +116,6 @@ export default function AddBrandModal({ isOpen, onClose, totalCredits = 2, usedC
       setCurrentPageId(pageId);
     } catch (error) {
       console.error('Failed to create brand:', error);
-      setShowErrorToast(true);
       setIsCreatingBrand(false);
     }
   };
@@ -120,12 +124,7 @@ export default function AddBrandModal({ isOpen, onClose, totalCredits = 2, usedC
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-      {/* {showErrorToast && (
-        <Toast
-          message="Unable to add Brand"
-          onClose={() => setShowErrorToast(false)}
-        />
-      )} */}
+     
       <div className="bg-card text-card-foreground rounded-xl shadow-lg w-[490px] modal-animation">
         <div className="p-5">
           <div className="flex flex-col gap-4 relative">

@@ -18,6 +18,8 @@ export interface BrandDetails {
     text: string
   } | null,
   ad_count?: number | null
+}
+
 export interface Ad {
   external_id: string
   brand_name: string
@@ -27,6 +29,27 @@ export interface Ad {
   media_src: string
   is_active: boolean
   key?: string
+}
+
+export interface AdDetails {
+  external_id: string
+  brand_name: string
+  brand_logo: string
+  time: string
+  media_type: "image" | "video"
+  media_src: string
+  start_date: string
+  end_date: string | null
+  platforms: string[]
+  ad_text: string
+  footer: {
+    view_link: string
+    title: string
+    sub_title: string
+    button_text: string
+  }
+  cta_link: string
+  is_active: boolean
 }
 
 export interface SidebarItem {

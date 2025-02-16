@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link2, Facebook, CheckCircle2, XCircle, PlayCircle } from 'lucide-react';
-import loadingAnimation from '../../../assets/brand_loading.json';
+import loadingAnimation from '../../assets/brand_loading.json';
 import Lottie from 'lottie-react';
-import { useBrandCreation } from '../../../context/brand-creation-context';
+import { useBrandCreation } from '../../context/brand-creation-context';
 
 
 const LOADING_STATES = [

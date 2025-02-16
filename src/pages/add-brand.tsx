@@ -1,6 +1,6 @@
 import { Search, Plus } from "lucide-react"
 import { useState } from "react"
-import AddBrandModal from "@/components/add-brand/add-brand-dialog/add-brand-dialog"
+import AddBrandModal from "@/components/add-brand-dialog/add-brand-dialog"
 import { BrandCreationProvider } from "@/context/brand-creation-context"
 
 export function AddBrandPage() {
