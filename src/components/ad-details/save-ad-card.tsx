@@ -1,4 +1,4 @@
-import { Layout as LayoutBoard } from "lucide-react"
+import { Layout as LayoutBoard } from "lucide-react";
 
 export function SaveAdCard() {
   return (
@@ -15,5 +15,5 @@ export function SaveAdCard() {
         </button>
       </div>
     </div>
-  )
+  );
 }

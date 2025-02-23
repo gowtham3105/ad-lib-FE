@@ -1,6 +1,7 @@
 import { AnalyticsSection } from "./analytics-section"
 import type { Ad } from "@/lib/types"
-import { MediaMasonry } from "@/components/media-masonry"
+import { AdListViewer } from "../ad-list-viewer"
+import { ProgressBar } from "./progress-bar"
 
 interface LibraryTabProps {
   media: Ad[]
@@ -8,6 +9,7 @@ interface LibraryTabProps {
   error: string | null
   hasMore?: boolean
   onLastElementInView?: () => void
+  showProgressBar?: boolean | null
 }
 
 export function LibraryTab({ 
@@ -15,12 +17,20 @@ export function LibraryTab({
   loading, 
   error,
   hasMore,
-  onLastElementInView 
+  onLastElementInView,
+  showProgressBar
 }: LibraryTabProps) {
+
+  if (showProgressBar) {
+    return (
+      <ProgressBar onComplete={() => {}}/>
+    )
+  }
+
   return (
     <div className="space-y-8">
       <AnalyticsSection />
-      <MediaMasonry
+      <AdListViewer
         media={media}
         loading={loading}
         error={error}

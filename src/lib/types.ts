@@ -17,7 +17,10 @@ export interface BrandDetails {
     url: string
     text: string
   } | null,
-  ad_count?: number | null
+  ad_count?: number | null,
+  ads_scrapped?: boolean | null
+  landing_pages_scrapped?: boolean | null
+  hooks_fetched?: boolean | null
 }
 
 export interface Ad {

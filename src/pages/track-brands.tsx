@@ -27,7 +27,7 @@ export function TrackBrandsPage() {
       if (!brandId) return
       try {
         const token = await getToken()
-        const response = await fetch(`http://127.0.0.1:8000/brand/view/${brandId}`, {
+        const response = await fetch(`http://127.0.0.1:8080/brand/view/${brandId}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -38,7 +38,10 @@ export function TrackBrandsPage() {
         setBrandDetails({
           name: data.name,
           logo: data.logo,
-          activeCount: data.ad_count
+          activeCount: data.ad_count,
+          ads_scrapped: data.last_scraped_at == null ? false : true,
+          landing_pages_scrapped: data.last_landing_page_scraped_at == null ? false : true,
+          hooks_fetched: data.last_transcription_triggered_at == null ? false : true,
         })
       } catch (error) {
         console.error('Error fetching brand details:', error)
@@ -57,7 +60,7 @@ export function TrackBrandsPage() {
       setError(null)
       const token = await getToken()
       
-      const response = await fetch(`http://127.0.0.1:8000/ad/search`, {
+      const response = await fetch(`http://127.0.0.1:8080/ad/search`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -137,12 +140,13 @@ export function TrackBrandsPage() {
             error={error}
             hasMore={hasMore}
             onLastElementInView={handleLastElementInView}
+            showProgressBar={!brandDetails?.ads_scrapped}
           />
         )
       case "landing-pages":
-        return <LandingPagesTab />
+        return <LandingPagesTab showProgressBar ={!brandDetails?.landing_pages_scrapped} />
       case "hooks":
-        return <HooksTab brandDetails={brandDetails} />
+        return <HooksTab showProgressBar= {!brandDetails?.hooks_fetched} />
       default:
         return null
     }

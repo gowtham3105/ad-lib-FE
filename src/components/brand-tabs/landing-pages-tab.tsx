@@ -5,8 +5,15 @@ import { Copy, ExternalLink, Download, Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import type { LandingPage } from "@/lib/types"
+import { ProgressBar } from "./progress-bar"
 
-export function LandingPagesTab() {
+
+interface LandingPagesTabProps {
+  showProgressBar?: boolean | null
+}
+
+
+export function LandingPagesTab({ showProgressBar }: LandingPagesTabProps) {
   const { toast } = useToast()
   const { brandId } = useParams()
   const { getToken } = useAuth()
@@ -30,7 +37,7 @@ export function LandingPagesTab() {
         setError(null)
         const token = await getToken()
 
-        const response = await fetch(`http://127.0.0.1:8000/landing-pages/${brandId}`, {
+        const response = await fetch(`http://127.0.0.1:8080/landing-pages/${brandId}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -91,6 +98,12 @@ export function LandingPagesTab() {
 
   const handlePageSelect = (page: LandingPage) => {
     setSelectedPage(page)
+  }
+
+  if (showProgressBar) {
+    return (
+      <ProgressBar onComplete={() => {}} duration={30000}/>
+    )
   }
 
   if (loading) {

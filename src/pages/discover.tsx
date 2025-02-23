@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/page-header"
 import type { Ad, AdResponse } from "@/lib/types"
 import { useAuth } from "@clerk/clerk-react"
 import { MediaMasonry } from "@/components/media-masonry"
+import { AdListViewer } from "@/components/ad-list-viewer"
 
 export function DiscoverPage() {
   const { getToken } = useAuth()
@@ -35,7 +36,7 @@ export function DiscoverPage() {
       setLoading(true)
       const token = await getToken()
       
-      const response = await fetch(`http://127.0.0.1:8000/ad/search`, {
+      const response = await fetch(`http://127.0.0.1:8080/ad/search`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -82,7 +83,7 @@ export function DiscoverPage() {
       <header className="flex h-16 shrink-0 items-center gap-2">
         <PageHeader />
       </header>
-      <MediaMasonry
+      <AdListViewer
         media={ads}
         loading={loading}
         error={error}

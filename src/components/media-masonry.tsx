@@ -9,6 +9,7 @@ interface MediaMasonryProps {
   loading?: boolean
   error?: string | null
   hasMore?: boolean
+  onAdClick?: (ad: Ad) => void
   onLastElementInView?: () => void
 }
 
@@ -16,6 +17,7 @@ export function MediaMasonry({
   media, 
   loading = false, 
   error = null,
+  onAdClick,
   hasMore = false,
   onLastElementInView 
 }: MediaMasonryProps) {
@@ -135,16 +137,18 @@ export function MediaMasonry({
             ref={index === media.length - 1 && onLastElementInView ? lastElementRef : undefined}
             className="mb-3"
           >
-            <MediaCard
-              id={ad.external_id}
-              type={ad.media_type}
-              src={ad.media_src}
-              title={ad.brand_name}
-              brandName={ad.brand_name}
-              brandLogo={ad.brand_logo}
-              timestamp={ad.time}
-              isActive={ad.is_active}
-            />
+            <div onClick={() => onAdClick?.(ad)}>
+              <MediaCard
+                id={ad.external_id}
+                type={ad.media_type}
+                src={ad.media_src}
+                title={ad.brand_name}
+                brandName={ad.brand_name}
+                brandLogo={ad.brand_logo}
+                timestamp={ad.time}
+                isActive={ad.is_active}
+              />
+            </div>
           </div>
         ))}
         {loading && (

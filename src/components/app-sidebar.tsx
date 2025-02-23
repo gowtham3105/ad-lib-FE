@@ -39,7 +39,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         setLoading(true);
         const token = await getToken();
 
-        const response = await fetch(`http://127.0.0.1:8000/sidebar/view`, {
+        const response = await fetch(`http://127.0.0.1:8080/sidebar/view`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -77,7 +77,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       setLoading(true);
       const token = await getToken();
 
-      const response = await fetch(`http://127.0.0.1:8000/sidebar/view`, {
+      const response = await fetch(`http://127.0.0.1:8080/sidebar/view`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

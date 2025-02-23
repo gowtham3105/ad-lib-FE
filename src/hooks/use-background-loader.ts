@@ -35,7 +35,7 @@ export function useBackgroundLoader(
         controller.current = new AbortController()
 
         const token = await getToken()
-        const response = await fetch(`http://127.0.0.1:8000/ad/search`, {
+        const response = await fetch(`http://127.0.0.1:8080/ad/search`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -2,7 +2,6 @@ import { BookmarkIcon, Link2Icon, PlayCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 import { useEffect, useRef, useState, useCallback, memo } from "react"
-import { AdDetailsDialog } from "@/components/ad-details-dialog"
 
 interface MediaCardProps {
   type: "image" | "video"
@@ -16,10 +15,10 @@ interface MediaCardProps {
   id: string
 }
 
-export const MediaCard = memo(function MediaCard({ 
-  type, 
-  src, 
-  title, 
+export const MediaCard = memo(function MediaCard({
+  type,
+  src,
+  title,
   brandName,
   brandLogo,
   timestamp = "2D",
@@ -32,8 +31,10 @@ export const MediaCard = memo(function MediaCard({
   const [isLoading, setIsLoading] = useState(true)
   const [aspectRatio, setAspectRatio] = useState<number | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [showDetails, setShowDetails] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
+
+
+
   const [blurDataUrl, setBlurDataUrl] = useState<string>('')
   const [isHovered, setIsHovered] = useState(false)
   const [isImageLoaded, setIsImageLoaded] = useState(false)
@@ -142,10 +143,6 @@ export const MediaCard = memo(function MediaCard({
     }
   }, [type])
 
-  const handleCardClick = () => {
-    setShowDetails(true)
-  }
-
   useEffect(() => {
     const video = videoRef.current
     if (video) {
@@ -153,14 +150,14 @@ export const MediaCard = memo(function MediaCard({
         setIsPlaying(false)
         video.currentTime = 0 // Reset to start when ended
       }
-      
+
       const handlePlay = () => setIsPlaying(true)
       const handlePause = () => setIsPlaying(false)
-      
+
       video.addEventListener('ended', handleEnded)
       video.addEventListener('play', handlePlay)
       video.addEventListener('pause', handlePause)
-      
+
       return () => {
         video.removeEventListener('ended', handleEnded)
         video.removeEventListener('play', handlePlay)
@@ -171,7 +168,7 @@ export const MediaCard = memo(function MediaCard({
 
   return (
     <>
-      <div 
+      <div
         className={cn(
           "bg-white rounded-xl overflow-hidden border border-gray-100/50 flex flex-col",
           "shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all duration-300",
@@ -179,13 +176,12 @@ export const MediaCard = memo(function MediaCard({
           "cursor-pointer",
           className
         )}
-        onClick={handleCardClick}
       >
         {/* Card Header */}
         <div className="flex items-center justify-between px-4 pt-2.5 pb-2">
           <div className="flex items-center gap-3">
-            <img 
-              src={brandLogo} 
+            <img
+              src={brandLogo}
               alt={brandName}
               className="w-7 h-7 rounded-lg object-cover"
             />
@@ -194,8 +190,8 @@ export const MediaCard = memo(function MediaCard({
           <div className="flex items-center gap-2">
             <div className={cn(
               "w-2 h-2 rounded-full",
-              isActive 
-                ? "bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.6)]" 
+              isActive
+                ? "bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.6)]"
                 : "bg-gray-300"
             )} />
             <span className="text-gray-500 text-sm">{timestamp}</span>
@@ -203,7 +199,7 @@ export const MediaCard = memo(function MediaCard({
         </div>
 
         {/* Media Content */}
-        <div 
+        <div
           className={cn(
             "relative w-full cursor-pointer p-2",
             isLoading && "bg-gray-100 animate-pulse",
@@ -254,7 +250,7 @@ export const MediaCard = memo(function MediaCard({
                 muted // Required for autoplay
               />
               {!isPlaying && !isHovered && (
-                <div 
+                <div
                   className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-lg transition-opacity"
                   onClick={handleVideoClick}
                 >
@@ -270,14 +266,14 @@ export const MediaCard = memo(function MediaCard({
         {/* Card Footer */}
         <div className="pt-1.5 pb-2 px-4">
           <div className="flex items-center justify-between">
-            <button 
+            <button
               onClick={handleCopyLink}
               className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition-all shadow-sm hover:shadow font-medium"
               title="Copy link"
             >
               <Link2Icon className="w-4 h-4" />
             </button>
-            <button 
+            <button
               onClick={handleSave}
               className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
               title="Save"
@@ -287,12 +283,6 @@ export const MediaCard = memo(function MediaCard({
           </div>
         </div>
       </div>
-
-      <AdDetailsDialog 
-        open={showDetails}
-        onOpenChange={setShowDetails}
-        adId={id}
-      />
     </>
   )
 })

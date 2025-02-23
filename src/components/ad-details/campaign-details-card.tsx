@@ -1,4 +1,4 @@
-import { Calendar, Clock, Activity, Facebook, Instagram, MessageCircle } from "lucide-react"
+import { Calendar, Clock, Activity, Facebook, Instagram, MessageCircle } from "lucide-react";
 
 export function CampaignDetailsCard() {
   return (
@@ -54,5 +54,5 @@ export function CampaignDetailsCard() {
         </div>
       </div>
     </div>
-  )
+  );
 }

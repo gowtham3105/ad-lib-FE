@@ -1,26 +1,17 @@
-import { ChevronLeft, ChevronRight, Download, ExternalLink } from "lucide-react"
-import type { LucideIcon } from "lucide-react"
-
-interface MenuItem {
-  icon: LucideIcon
-  label: string
-}
-
-export const menuItems: MenuItem[] = [
+export const menuItems = [
   {
-    icon: ChevronLeft,
-    label: "Previous"
+    icon: 'Share2',
+    label: 'Share',
+    onClick: () => console.log('Share clicked'),
   },
   {
-    icon: ChevronRight,
-    label: "Next"
+    icon: 'Heart',
+    label: 'Save',
+    onClick: () => console.log('Save clicked'),
   },
   {
-    icon: Download,
-    label: "Download"
+    icon: 'Flag',
+    label: 'Report',
+    onClick: () => console.log('Report clicked'),
   },
-  {
-    icon: ExternalLink,
-    label: "Landing Page"
-  }
-]
+];
