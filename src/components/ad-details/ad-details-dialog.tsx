@@ -6,7 +6,7 @@ import { AdSidebar } from "@/components/ad-details/ad-sidebar";
 import { MenuBar } from "@/components/ui/bottom-menu";
 import { menuItems } from "@/components/ad-details/menu-items";
 
-interface AdData {
+interface AdDetails {
   external_id: string;
   brand_name: string;
   brand_logo: string;
@@ -31,7 +31,7 @@ interface AdData {
 interface AdDetailsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  adData: AdData;
+  adData: AdDetails;
   loading?: boolean;
   onPrevious?: () => void;
   onNext?: () => void;

@@ -12,10 +12,13 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useMemo } from "react";
+import { BrandDetails, FolderDetails } from "@/lib/types";
 
 // --- Types ---
 interface PageHeaderProps {
   brandDetails?: BrandDetails | null;
+  folderDetails?: FolderDetails | null;
+
 }
 
 interface BreadcrumbConfig {
@@ -56,7 +59,7 @@ const Breadcrumbs = ({ config, brandDetails }: { config: BreadcrumbConfig; brand
 );
 
 // --- Main Component ---
-export function PageHeader({ brandDetails }: PageHeaderProps) {
+export function PageHeader({ brandDetails, folderDetails }: PageHeaderProps) {
   const location = useLocation();
   const { folderId, brandId } = useParams();
   const { isMobile } = useSidebar();
@@ -86,7 +89,7 @@ export function PageHeader({ brandDetails }: PageHeaderProps) {
       return {
         parent: "Saved Folders",
         parentLink: "/saved-folders",
-        current: folderId === "123" ? "Nike" : folderId === "12" ? "Vance" : folderId || "Folder",
+        current: folderDetails?.name || "Loading...",
       };
     }
 
@@ -95,7 +98,7 @@ export function PageHeader({ brandDetails }: PageHeaderProps) {
     if (path === "/add-brand") return { current: "Add Brand" };
 
     return { current: "Discover" };
-  }, [location.pathname, brandDetails?.name, folderId]);
+  }, [location.pathname, brandDetails?.name, folderId, folderDetails?.name]);
 
   // Memoize status counts display
   const StatusCounts = useMemo(() => {

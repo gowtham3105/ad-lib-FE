@@ -2,14 +2,14 @@ import { UnifiedDetailsCard } from './unified-details-card';
 import { cn } from '@/lib/utils';
 import { useEffect, useRef, useState } from 'react';
 import { BoardDropdown } from './board-dropdown';
+import { AdDetails } from '@/lib/types';
 
-import { AdData } from './ad-details-dialog';
 
 interface AdSidebarProps {
   isMobile: boolean;
   showDetails: boolean;
   onShowDetailsChange: (show: boolean) => void;
-  adData: AdData;
+  adData: AdDetails;
   loading?: boolean;
 }
 
@@ -24,10 +24,7 @@ export function AdSidebar({
   const [currentY, setCurrentY] = useState<number | null>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
 
-  const handleBoardSelect = (boardId: string) => {
-    console.log("Selected board:", boardId);
-    // Here you would typically make an API call to save the ad to the selected board
-  };
+ 
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setStartY(e.touches[0].clientY);
@@ -84,7 +81,7 @@ export function AdSidebar({
         </div>
       </div>
       <div className="p-3 bg-white">
-        <BoardDropdown onBoardSelect={handleBoardSelect} disabled={loading} />
+        <BoardDropdown  disabled={loading} adData={adData} />
       </div>
     </div>
   );

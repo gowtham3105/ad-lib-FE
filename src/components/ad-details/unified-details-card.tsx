@@ -1,13 +1,12 @@
 import { DialogClose } from "@/components/ui/dialog";
 import { X, ChevronDown } from "lucide-react";
-import { AdData } from './ad-details-dialog';
 import { Globe, Clock, Calendar, LayoutGrid } from "lucide-react";
-import { BoardDropdown } from "./board-dropdown";
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { AdDetails } from "@/lib/types";
 
 interface UnifiedDetailsCardProps {
-  adData: AdData;
+  adData: AdDetails;
   loading?: boolean;
 }
 

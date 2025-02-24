@@ -2,44 +2,40 @@ import { useState, useRef, useEffect } from "react";
 import { LayoutGrid, Plus, ChevronDown, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
-
+import useBoards from "../../hooks/use-boards";
+import { AdDetails } from "@/lib/types";
+import { useAuth } from "@clerk/clerk-react";
 interface Board {
   id: string;
   name: string;
   description: string;
   itemCount: number;
-  thumbnail?: string;
+  thumbnail: string;
 }
 
-const mockBoards: Board[] = [
-  {
-    id: "1",
-    name: "Health & Wellness",
-    description: "Fitness, nutrition, and wellness product ads",
-    itemCount: 24,
-    thumbnail: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800&auto=format&fit=crop&q=60"
-  },
-  {
-    id: "2",
-    name: "Supplements",
-    description: "Vitamin and supplement products",
-    itemCount: 12,
-    thumbnail: "https://images.unsplash.com/photo-1616196334218-caffdc9b2317?w=800&auto=format&fit=crop&q=60"
-  }
-];
 
 interface BoardDropdownProps {
-  onBoardSelect: (boardId: string) => void;
   disabled?: boolean;
+  adData: AdDetails;
 }
 
-export function BoardDropdown({ onBoardSelect, disabled }: BoardDropdownProps) {
+export function BoardDropdown({ disabled, adData }: BoardDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [savedBoard, setSavedBoard] = useState<Board | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { getToken } = useAuth();
 
-  const filteredBoards = mockBoards.filter(board => 
+  const { boards, loading, error } = useBoards();
+  const convertedBoards = boards.map(b => ({
+    id: b.id.toString(),
+    name: b.name,
+    description: "",
+    itemCount: 0,
+    thumbnail: ""
+  }));
+  
+  const filteredBoards = convertedBoards.filter(board => 
     board.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     board.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -59,31 +55,55 @@ export function BoardDropdown({ onBoardSelect, disabled }: BoardDropdownProps) {
     // Here you would typically make an API call to create the board
     console.log("Creating new board:", { name });
     
-    // Mock adding the new board to the list
+    // Mock adding the new board to the list using the current boards length for a new id
     const newBoard: Board = {
-      id: `${mockBoards.length + 1}`,
+      id: `${boards.length + 1}`,
       name,
       description: "",
-      itemCount: 0
+      itemCount: 0,
+      thumbnail: ""
     };
     
-    // In a real app, you would update the boards list after the API call succeeds
     console.log("New board created:", newBoard);
-    
     handleBoardSelect(newBoard);
     setIsOpen(false);
   };
 
-  const handleBoardSelect = (board: Board) => {
-    onBoardSelect(board.id);
-    setSavedBoard(board);
-    setIsOpen(false);
-    
-    // Reset the saved state after 2 seconds
-    setTimeout(() => {
-      setSavedBoard(null);
-    }, 2000);
+
+  const handleBoardSelect = async (board: Board) => {
+    try {
+      const token = await getToken();
+      const response = await fetch('http://127.0.0.1:8080/saved-folder/add/ad', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ad_external_id: adData.external_id,
+          folder_id: board.id
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save ad to board');
+      }
+
+      // Continue with UI updates after successful API call
+      setSavedBoard(board);
+      setIsOpen(false);
+      
+      // Reset the saved state after 2 seconds
+      setTimeout(() => {
+        setSavedBoard(null);
+      }, 2000);
+    } catch (error) {
+      console.error('Error saving ad to board:', error);
+      // Here you might want to show an error toast/notification to the user
+
+    }
   };
+
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -129,7 +149,7 @@ export function BoardDropdown({ onBoardSelect, disabled }: BoardDropdownProps) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search boards or create new..."
-                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                className="w-full pl-9 pr-3 py-2 text-sm border-1 border-gray-200 bg-white text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
               />
             </div>
 
@@ -140,26 +160,14 @@ export function BoardDropdown({ onBoardSelect, disabled }: BoardDropdownProps) {
                     <button
                       key={board.id}
                       onClick={() => handleBoardSelect(board)}
-                      className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors group text-left"
+                      className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition-colors group text-left ml-4"
                     >
-                      <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                        {board.thumbnail ? (
-                          <img 
-                            src={board.thumbnail} 
-                            alt={board.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <LayoutGrid className="w-4 h-4 text-gray-400" />
-                          </div>
-                        )}
-                      </div>
+                     
                       <div>
                         <h3 className="text-sm font-medium text-gray-900 group-hover:text-gray-700">
                           {board.name}
                         </h3>
-                        <p className="text-xs text-gray-500">{board.itemCount} items</p>
+                        {/* <p className="text-xs text-gray-500">{board.itemCount} items</p> */}
                       </div>
                     </button>
                   ))}
