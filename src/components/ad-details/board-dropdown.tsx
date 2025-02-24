@@ -6,11 +6,9 @@ import useBoards from "../../hooks/use-boards";
 import { AdDetails } from "@/lib/types";
 import { useAuth } from "@clerk/clerk-react";
 interface Board {
-  id: string;
+  id?: string;
   name: string;
-  description: string;
   itemCount: number;
-  thumbnail: string;
 }
 
 
@@ -30,14 +28,12 @@ export function BoardDropdown({ disabled, adData }: BoardDropdownProps) {
   const convertedBoards = boards.map(b => ({
     id: b.id.toString(),
     name: b.name,
-    description: "",
     itemCount: 0,
-    thumbnail: ""
   }));
   
   const filteredBoards = convertedBoards.filter(board => 
-    board.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    board.description.toLowerCase().includes(searchQuery.toLowerCase())
+    board.name.toLowerCase().includes(searchQuery.toLowerCase())
+   
   );
 
   useEffect(() => {
@@ -57,16 +53,12 @@ export function BoardDropdown({ disabled, adData }: BoardDropdownProps) {
     
     // Mock adding the new board to the list using the current boards length for a new id
     const newBoard: Board = {
-      id: `${boards.length + 1}`,
       name,
-      description: "",
       itemCount: 0,
-      thumbnail: ""
     };
     
     console.log("New board created:", newBoard);
     handleBoardSelect(newBoard);
-    setIsOpen(false);
   };
 
 
@@ -81,7 +73,8 @@ export function BoardDropdown({ disabled, adData }: BoardDropdownProps) {
         },
         body: JSON.stringify({
           ad_external_id: adData.external_id,
-          folder_id: board.id
+          folder_id: board.id,
+          folder_name: board.name
         })
       });
 
