@@ -39,12 +39,13 @@ export interface AdDetails {
   brand_name: string
   brand_logo: string
   time: string
-  media_type: "image" | "video"
+  media_type: string
   media_src: string
   start_date: string
   end_date: string | null
   platforms: string[]
   ad_text: string
+  transcript?: string;
   footer: {
     view_link: string
     title: string
@@ -54,6 +55,8 @@ export interface AdDetails {
   cta_link: string
   is_active: boolean
 }
+
+
 
 export interface SidebarItem {
   url: string
@@ -81,4 +84,9 @@ export interface BrandSuggestion {
   trend: number
   logo: string
   // Add any additional fields you need
+}
+
+export interface FolderDetails {
+  name:string
+  id:string
 }
